@@ -10,5 +10,5 @@ struct DataPacksContent: View {
 
 #Preview {
     DataPacksContent()
-        .frame(width: 300, height: 200) // 预览尺寸参考图片比例
+        .frame(width: 300, height: 200)
 }

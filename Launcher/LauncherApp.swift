@@ -19,24 +19,51 @@ struct LauncherApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if gameState.isLoading {
-                LoadingView()
-            } else {
-                ContentView()
-            }
-        }.windowToolbarStyle(.unified(showsTitle: false)) // not the same as using .windowStyle(.hiddenTitleBar)
-            .windowStyle(.titleBar)
-            .windowResizability(.contentMinSize)
+            ContentView()
+            
+        }
+        .windowStyle(.titleBar)
+        .windowToolbarStyle(.unified(showsTitle: false))
+        .windowResizability(.contentMinSize)
+        .restorationBehavior(.disabled)
+        
+        //        WindowGroup("Special window") {
+        //            Text("special window")
+        //                .frame(minWidth: 200, idealWidth: 300, minHeight: 200).toolbar(removing: .title)
+        //                .toolbarBackground(.hidden, for: .windowToolbar).containerBackground(.bar, for: .window)
+        //        }.windowResizability(.contentSize).windowStyle(.plain)
+        //        // 菜单栏
+        //        .commands {
+        //            CommandMenu("Task") {
+        //                Button("Add new Task") {
+        //
+        //                }
+        //                .keyboardShortcut(KeyEquivalent("r"), modifiers: /*@START_MENU_TOKEN@*/.command/*@END_MENU_TOKEN@*/)
+        //            }
+        //
+        //            CommandGroup(after: .newItem) {
+        //                Button("Add new Group") {
+        //
+        //                }
+        //            }
+        //        }
+        //        .defaultPosition(.leading)
+        //        // 设置
+        //        Settings {
+        //            Text("Setting")
+        //                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        //        }
+        //
+        //        // 任务栏
+        //        MenuBarExtra("Menu") {
+        //            Button("Do something amazing") {
+        //
+        //            }
+        //        }
+        
     }
+    
 }
 
-struct LoadingView: View {
-    var body: some View {
-        VStack {
-            ProgressView()
-                .controlSize(.large)
-            Text("正在加载游戏版本...")
-                .padding(.top)
-        }
-    }
-}
+
+

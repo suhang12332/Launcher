@@ -5,7 +5,7 @@ public struct SidebarView: View {
     
     // State to control the showing of the sheet
     @State private var showingGameForm = false
-
+    
     public init(selection: Binding<SidebarItem?>) {
         self._selection = selection
     }
