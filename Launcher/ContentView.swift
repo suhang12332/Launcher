@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var selectedItem: SidebarItem?
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
+    @State private var showingInspector: Bool = true
     
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
@@ -33,42 +34,59 @@ struct ContentView: View {
                     }
                 }
             } toolbarContent: {
-                HStack {
-                    Menu {
-                        Button("添加游戏") {}
-                        Button("导入游戏") {}
-                        Divider()
-                        Button("设置") {}
-                    } label: {
-                        HStack {
-                            Image(systemName: "gamecontroller")
-                            Image(systemName: "chevron.down")
-                                .font(.system(size: 10))
-                        }
-                    }
-                    .menuStyle(.borderlessButton)
-                    
-                    Spacer()
-                    
-                    Button(action: {}) {
-                        Image(systemName: "plus")
-                    }
+                Button(action: {}) {
+                    Image(systemName: "person.badge.plus")
                 }
+                .help("添加用户")
+                Spacer()
+                Button(action: {}) {
+                    Image(systemName: "person.badge.plus")
+                }
+                .help("添加用户")
             }
             .navigationSplitViewColumnWidth(230)
         } detail: {
-            ToolbarContentView(title: "Detail", showDivider: false) {
-                Text("Detail Content")
-            } toolbarContent: {
-                HStack {
-                    Text("Detail")
-                        .font(.headline)
-                    Spacer()
-                    Button(action: {}) {
-                        Image(systemName: "gear")
-                    }
+            ToolbarContentView(title: "游戏版本", showDivider: false) {
+                if GameState.shared.isLoading {
+                    ProgressView("加载中...")
+                } else if let error = GameState.shared.error {
+                    Text("错误: \(error.localizedDescription)")
+                        .foregroundColor(.red)
+                } else {
+                    MinecraftVersionsView(versions: GameState.shared.versions)
                 }
+            } toolbarContent: {
+                Text("游戏版本")
+                    .font(.headline)
+                Spacer()
+                Button(action: {}) {
+                    Image(systemName: "gear")
+                }
+                .help("设置")
+                
             }
+        }.inspector(isPresented: $showingInspector) {
+            ToolbarContentView(title: "游戏版本", showDivider: false) {
+                MinecraftVersionsView(versions: GameState.shared.versions)
+            } toolbarContent: {
+                Text("游戏版本")
+                    .font(.headline)
+                Spacer()
+                Button(action: {}) {
+                    Image(systemName: "gear")
+                }
+                .help("设置")
+                Spacer()
+                Button(action: {
+                    withAnimation {
+                        showingInspector.toggle()
+                    }
+                }) {
+                    Image(systemName: showingInspector ? "sidebar.right" : "sidebar.left")
+                }
+                .help(showingInspector ? "隐藏检查器" : "显示检查器")
+            }
+
         }
     }
 }

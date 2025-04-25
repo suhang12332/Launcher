@@ -21,7 +21,6 @@ public struct SidebarView: View {
         }
         .safeAreaInset(edge: .bottom) {
             Button(action: {
-                // Show the game form when the button is tapped
                 showingGameForm.toggle()
             }, label: {
                 Label("添加游戏", systemImage: "gamecontroller")
