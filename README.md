@@ -2,9 +2,9 @@
 
 > 一个优雅的原生 macOS Minecraft 启动器，专注于简洁与性能
 
-[![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org)
-[![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)](https://www.apple.com/macos)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+<!-- [![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org) -->
+<!-- [![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)](https://www.apple.com/macos) -->
+<!-- [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) -->
 
 <div align="center">
   <img src="Screenshots/main.png" width="800" alt="主界面截图">
@@ -60,7 +60,7 @@ Launcher/
 1. 安装最新版本的 [Xcode](https://apps.apple.com/us/app/xcode/id497799835)
 2. 克隆项目
    ```bash
-   git clone https://github.com/yourusername/minecraft-launcher.git
+   git clone https://github.com/suhang12332/minecraft-launcher.git
    cd minecraft-launcher
    ```
 3. 打开项目
