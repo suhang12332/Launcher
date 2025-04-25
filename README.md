@@ -1,4 +1,4 @@
-# <img src="Launcher/Assets.xcassets/AppIcon.appiconset/mac512.png" width="32"> Minecraft Launcher
+# <img src="Launcher/Assets.xcassets/AppIcon.appiconset/1024.png" width="32"> Minecraft Launcher
 
 > 一个优雅的原生 macOS Minecraft 启动器，专注于简洁与性能
 
@@ -6,9 +6,9 @@
 <!-- [![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)](https://www.apple.com/macos) -->
 <!-- [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) -->
 
-<div align="center">
+<!-- <div align="center">
   <img src="Screenshots/main.png" width="800" alt="主界面截图">
-</div>
+</div> -->
 
 ## ✨ 特性
 
