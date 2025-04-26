@@ -12,15 +12,15 @@ public enum SidebarItem: String, CaseIterable, Identifiable {
     public var localizedName: String {
         switch self {
         case .mods:
-            return "模组"
+            return NSLocalizedString("sidebar.mods", comment: "")
         case .dataPacks:
-            return "数据包"
+            return NSLocalizedString("sidebar.dataPacks", comment: "")
         case .shaders:
-            return "光影"
+            return NSLocalizedString("sidebar.shaders", comment: "")
         case .resourcePacks:
-            return "资源包"
+            return NSLocalizedString("sidebar.resourcePacks", comment: "")
         case .modPacks:
-            return "整合包"
+            return NSLocalizedString("sidebar.modPacks", comment: "")
         }
     }
     

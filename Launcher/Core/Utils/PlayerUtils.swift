@@ -10,15 +10,15 @@ enum PlayerUtils {
         onSuccess: @escaping () -> Void,
         onError: @escaping (PlayerError) -> Void
     ) async {
-        logger.debug("开始添加新玩家 - 名称：\(name)")
+        logger.debug("开始添加离线用户 - 名称：\(name)")
         
         do {
             try await playerService.addPlayer(name: name)
-            logger.info("添加玩家成功 - 名称：\(name)")
+            logger.info("添加离线用户成功 - 名称：\(name)")
             onSuccess()
         } catch {
             let playerError = (error as? PlayerError) ?? .unknown
-            logger.error("添加玩家失败 - 名称：\(name), 错误：\(playerError.localizedDescription)")
+            logger.error("添加离线用户失败 - 名称：\(name), 错误：\(playerError.localizedDescription)")
             onError(playerError)
         }
     }

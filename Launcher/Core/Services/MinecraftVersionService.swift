@@ -2,20 +2,14 @@ import Foundation
 import OSLog
 
 class MinecraftVersionService {
-    private let versionManifestURL = "https://launchermeta.mojang.com/mc/game/version_manifest.json"
     private let logger = Logger(subsystem: "com.launcher", category: "MinecraftVersionService")
     
     func fetchReleaseVersions() async throws -> [MinecraftVersion] {
         logger.debug("开始获取 Minecraft 版本列表")
         
-        guard let url = URL(string: versionManifestURL) else {
-            logger.error("无效的版本清单 URL")
-            throw URLError(.badURL)
-        }
-        
         do {
             logger.debug("正在从 Mojang 服务器获取版本清单")
-            let (data, response) = try await URLSession.shared.data(from: url)
+            let (data, response) = try await URLSession.shared.data(from: URLConfig.API.Minecraft.versionList)
             
             guard let httpResponse = response as? HTTPURLResponse else {
                 logger.error("无效的 HTTP 响应")

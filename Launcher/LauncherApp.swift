@@ -10,8 +10,14 @@ import SwiftUI
 @main
 struct LauncherApp: App {
     @StateObject private var gameState = GameState.shared
+    @StateObject private var languageManager = LanguageManager.shared
     
     init() {
+        // 设置语言
+        if let language = UserDefaults.standard.string(forKey: "selectedLanguage") {
+            Bundle.setLanguage(language)
+        }
+        
         Task {
             await GameState.shared.loadVersions()
         }
@@ -20,13 +26,14 @@ struct LauncherApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-            
         }
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified(showsTitle: false))
         .windowResizability(.contentMinSize)
-        // 是否保留上次关闭时的状态
-        //.restorationBehavior(.disabled)
+        
+        Settings {
+            SettingsView()
+        }
         
         //        WindowGroup("Special window") {
         //            Text("special window")
@@ -64,6 +71,30 @@ struct LauncherApp: App {
         
     }
     
+}
+
+// 扩展 Bundle 以支持动态切换语言
+extension Bundle {
+    static func setLanguage(_ language: String) {
+        defer {
+            object_setClass(Bundle.main, AnyLanguageBundle.self)
+        }
+        
+        objc_setAssociatedObject(Bundle.main, &bundleKey, language, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+    }
+}
+
+var bundleKey: UInt8 = 0
+
+class AnyLanguageBundle: Bundle, @unchecked Sendable {
+    override func localizedString(forKey key: String, value: String?, table tableName: String?) -> String {
+        guard let path = objc_getAssociatedObject(self, &bundleKey) as? String,
+              let bundle = Bundle.main.path(forResource: path, ofType: "lproj").flatMap(Bundle.init(path:)) else {
+            return super.localizedString(forKey: key, value: value, table: tableName)
+        }
+        
+        return bundle.localizedString(forKey: key, value: value, table: tableName)
+    }
 }
 
 

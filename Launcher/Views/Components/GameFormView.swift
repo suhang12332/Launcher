@@ -22,7 +22,7 @@ struct GameFormView: View {
             switch self {
             case .vanilla: return "cube"
             case .fabric: return "square.stack.3d.up"
-            case .forge: return "square.stack.3d.up.fill"
+            case .forge: return "square.stack.3d.up"
             case .neoforge: return "square.stack.3d.up.arrow.down"
             case .quilt: return "square.stack.3d.up.arrow.up"
             }
@@ -55,7 +55,7 @@ struct GameFormView: View {
                         }
                         
                         Button(action: { isIconPickerPresented = true }) {
-                            Text("选择图标")
+                            Text(NSLocalizedString("game.form.selectIcon", comment: ""))
                         }
                         .buttonStyle(.link)
                     }
@@ -65,7 +65,7 @@ struct GameFormView: View {
                     VStack(spacing: 24) {
                         // Game Name
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("游戏名称")
+                            Text(NSLocalizedString("game.form.name", comment: ""))
                                 .foregroundStyle(.secondary)
                             TextField("", text: $gameName)
                                 .textFieldStyle(.plain)
@@ -79,7 +79,7 @@ struct GameFormView: View {
                         
                         // Game Loader
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("游戏加载器")
+                            Text(NSLocalizedString("game.form.loader", comment: ""))
                                 .foregroundStyle(.secondary)
                             Menu {
                                 ForEach(GameLoader.allCases) { loader in
@@ -108,7 +108,7 @@ struct GameFormView: View {
                         
                         // Game Version
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("游戏版本")
+                            Text(NSLocalizedString("game.form.version", comment: ""))
                                 .foregroundStyle(.secondary)
                             TextField("", text: $gameVersion)
                                 .textFieldStyle(.plain)
@@ -130,12 +130,12 @@ struct GameFormView: View {
             // Footer
             HStack {
                 Spacer()
-                Button("取消") {
+                Button(NSLocalizedString("game.form.cancel", comment: "")) {
                     dismiss()
                 }
                 .keyboardShortcut(.escape)
                 
-                Button("添加") {
+                Button(NSLocalizedString("game.form.confirm", comment: "")) {
                     // TODO: Save game configuration
                     dismiss()
                 }

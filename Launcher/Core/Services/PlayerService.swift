@@ -8,9 +8,9 @@ enum PlayerError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .playerAlreadyExists:
-            return "玩家名已存在"
+            return NSLocalizedString("player.add.error.exists", comment: "")
         case .unknown:
-            return "未知错误"
+            return NSLocalizedString("player.add.error.unknown", comment: "")
         }
     }
 }
@@ -46,7 +46,7 @@ final class PlayerService: ObservableObject {
     
     func addPlayer(name: String) async throws {
         guard !self.players.contains(where: { $0.name == name }) else {
-            logger.error("添加玩家失败：玩家名已存在 - \(name)")
+            logger.error("添加离线用户失败：离线用户名已存在 - \(name)")
             throw PlayerError.playerAlreadyExists
         }
         
@@ -54,7 +54,7 @@ final class PlayerService: ObservableObject {
         self.players.insert(player, at: 0)
         savePlayers()
         
-        logger.info("添加新玩家成功 - 名称：\(name), UUID：\(player.id.uuidString)")
+        logger.info("添加新离线用户成功 - 名称：\(name), UUID：\(player.id.uuidString.lowercased())")
         
         try await selectPlayer(player)
     }
@@ -73,7 +73,7 @@ final class PlayerService: ObservableObject {
             savePlayers()
             saveSelectedPlayer()
             
-            logger.info("选择玩家 - 名称：\(player.name), UUID：\(player.id.uuidString)")
+            logger.info("选择离线用户 - 名称：\(player.name), UUID：\(player.id.uuidString.lowercased())")
         }
     }
     
@@ -86,15 +86,15 @@ final class PlayerService: ObservableObject {
             saveSelectedPlayer()
         }
         
-        logger.info("移除玩家 - 名称：\(player.name), UUID：\(player.id.uuidString)")
+        logger.info("移除离线用户 - 名称：\(player.name), UUID：\(player.id.uuidString.lowercased())")
     }
     
     private func savePlayers() {
         if let encoded = try? JSONEncoder().encode(self.players) {
             userDefaults.set(encoded, forKey: playersKey)
-            logger.debug("保存玩家列表成功 - 玩家数量：\(self.players.count)")
+            logger.debug("保存离线用户列表成功 - 离线用户数量：\(self.players.count)")
         } else {
-            logger.error("保存玩家列表失败")
+            logger.error("保存离线用户列表失败")
         }
     }
     
@@ -102,10 +102,10 @@ final class PlayerService: ObservableObject {
         if let player = self.selectedPlayer,
            let encoded = try? JSONEncoder().encode(player) {
             userDefaults.set(encoded, forKey: selectedPlayerKey)
-            logger.debug("保存选中玩家成功 - 名称：\(player.name)")
+            logger.debug("保存选中离线用户成功 - 名称：\(player.name)")
         } else {
             userDefaults.removeObject(forKey: selectedPlayerKey)
-            logger.debug("清除选中玩家")
+            logger.debug("清除选中离线用户")
         }
     }
     
@@ -113,9 +113,9 @@ final class PlayerService: ObservableObject {
         if let data = userDefaults.data(forKey: playersKey),
            let decoded = try? JSONDecoder().decode([Player].self, from: data) {
             self.players = decoded.sorted { $0.lastPlayed > $1.lastPlayed }
-            logger.debug("加载玩家列表成功 - 玩家数量：\(self.players.count)")
+            logger.debug("加载离线用户列表成功 - 离线用户数量：\(self.players.count)")
         } else {
-            logger.debug("加载玩家列表失败或为空")
+            logger.debug("加载离线用户列表失败或为空")
         }
     }
     
@@ -123,10 +123,10 @@ final class PlayerService: ObservableObject {
         if let data = userDefaults.data(forKey: selectedPlayerKey),
            let decoded = try? JSONDecoder().decode(Player.self, from: data) {
             self.selectedPlayer = decoded
-            logger.debug("加载选中玩家成功 - 名称：\(decoded.name)")
+            logger.debug("加载选中离线用户成功 - 名称：\(decoded.name)")
         } else {
             self.selectedPlayer = self.players.first
-            logger.debug("加载选中玩家失败，使用第一个玩家")
+            logger.debug("加载选中离线用户失败，使用第一个离线用户")
         }
     }
 } 
