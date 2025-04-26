@@ -1,0 +1,54 @@
+// Common
+"app.name" = "启动器";
+
+// Sidebar
+"sidebar.resources" = "资源列表";
+"sidebar.mods" = "模组";
+"sidebar.dataPacks" = "数据包";
+"sidebar.shaders" = "光影";
+"sidebar.resourcePacks" = "资源包";
+"sidebar.modPacks" = "整合包";
+"sidebar.addGame" = "添加游戏";
+
+// Player
+"player.add" = "添加玩家";
+"player.add.title" = "添加玩家";
+"player.add.message" = "请输入玩家名称，注意：玩家名称必须唯一，已存在的玩家名称将无法添加";
+"player.add.cancel" = "取消";
+"player.add.confirm" = "添加";
+"player.add.error.exists" = "玩家名已存在";
+"player.add.error.unknown" = "未知错误";
+"player.add.success" = "添加玩家成功";
+"player.remove" = "移除玩家";
+"player.select" = "选择玩家";
+
+// Game Version
+"game.version.title" = "游戏版本";
+"game.version.settings" = "设置";
+"game.version.inspector.show" = "显示检查器";
+"game.version.inspector.hide" = "隐藏检查器";
+"game.version.loading" = "加载中...";
+"game.version.error" = "错误：%@";
+
+// Game Form
+"game.form.title" = "添加游戏";
+"game.form.name" = "游戏名称";
+"game.form.loader" = "游戏加载器";
+"game.form.version" = "游戏版本";
+"game.form.cancel" = "取消";
+"game.form.confirm" = "添加";
+"game.form.selectIcon" = "选择图标";
+
+// Settings
+"settings.general" = "通用";
+"settings.about" = "关于";
+"settings.language" = "语言";
+"settings.language.system" = "跟随系统";
+"settings.language.en" = "英语";
+"settings.language.zh-Hans" = "简体中文";
+"settings.language.zh-Hant" = "繁体中文";
+"settings.restart.title" = "修改语言";
+"settings.restart.message" = "修改语言需要重启应用才能生效";
+"settings.restart.cancel" = "取消";
+"settings.restart.confirm" = "重启";
+"settings.chinese.message" = "汉语博大精深，学习汉语，学习中国文化，继续修改需要重启，是否继续？"; 

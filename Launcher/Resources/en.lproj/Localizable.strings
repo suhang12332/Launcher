@@ -1,0 +1,54 @@
+// Common
+"app.name" = "Launcher";
+
+// Sidebar
+"sidebar.resources" = "Resources";
+"sidebar.mods" = "Mods";
+"sidebar.dataPacks" = "Data Packs";
+"sidebar.shaders" = "Shaders";
+"sidebar.resourcePacks" = "Resource Packs";
+"sidebar.modPacks" = "Mod Packs";
+"sidebar.addGame" = "Add Game";
+
+// Player
+"player.add" = "Add Player";
+"player.add.title" = "Add Player";
+"player.add.message" = "Please enter player name. Note: Player name must be unique, existing player names cannot be added.";
+"player.add.cancel" = "Cancel";
+"player.add.confirm" = "Add";
+"player.add.error.exists" = "Player name already exists";
+"player.add.error.unknown" = "Unknown error";
+"player.add.success" = "Player added successfully";
+"player.remove" = "Remove Player";
+"player.select" = "Select Player";
+
+// Game Version
+"game.version.title" = "Game Version";
+"game.version.settings" = "Settings";
+"game.version.inspector.show" = "Show Inspector";
+"game.version.inspector.hide" = "Hide Inspector";
+"game.version.loading" = "Loading...";
+"game.version.error" = "Error: %@";
+
+// Game Form
+"game.form.title" = "Add Game";
+"game.form.name" = "Game Name";
+"game.form.loader" = "Game Loader";
+"game.form.version" = "Game Version";
+"game.form.cancel" = "Cancel";
+"game.form.confirm" = "Add";
+"game.form.selectIcon" = "Select Icon";
+
+// Settings
+"settings.general" = "General";
+"settings.about" = "About";
+"settings.language" = "Language";
+"settings.language.system" = "System";
+"settings.language.en" = "English";
+"settings.language.zh-Hans" = "Simplified Chinese";
+"settings.language.zh-Hant" = "Traditional Chinese";
+"settings.restart.title" = "Changing language";
+"settings.restart.message" = "Changing language requires restart to take effect";
+"settings.restart.cancel" = "Cancel";
+"settings.restart.confirm" = "Restart";
+"settings.chinese.message" = "感谢使用中文";
