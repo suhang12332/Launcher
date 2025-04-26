@@ -25,7 +25,8 @@ struct LauncherApp: App {
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified(showsTitle: false))
         .windowResizability(.contentMinSize)
-        .restorationBehavior(.disabled)
+        // 是否保留上次关闭时的状态
+        //.restorationBehavior(.disabled)
         
         //        WindowGroup("Special window") {
         //            Text("special window")
