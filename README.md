@@ -89,7 +89,7 @@ Launcher/
 
 本项目采用 MIT 协议 - 查看 [LICENSE](LICENSE) 文件了解更多详情。
 
-## 致谢
+<!-- ## 致谢
 
 - [Modrinth](https://modrinth.com/) - Mod 平台支持
-- [Mojang](https://www.mojang.com/) - Minecraft 官方支持
+- [Mojang](https://www.mojang.com/) - Minecraft 官方支持 -->
