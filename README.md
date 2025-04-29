@@ -1,6 +1,16 @@
 # Minecraft Launcher
 
-一个现代化的 Minecraft 启动器，使用 SwiftUI 构建，专为 macOS 设计。
+一个现代化的 Minecraft 启动器，使用 SwiftUI 构建，专为 macOS 设计。该启动器提供流畅的用户体验，支持多语言、多玩家配置、Mod 管理、资源包和光影管理等功能，让玩家轻松管理和启动 Minecraft。
+
+## 主要特点
+
+- **现代化界面**：采用 SwiftUI 构建，提供流畅、直观的用户界面，符合 macOS 设计规范。
+- **多语言支持**：支持英文、简体中文和繁体中文，满足不同地区玩家的需求。
+- **多玩家配置**：支持多个玩家配置，轻松切换不同玩家的游戏设置和皮肤。
+- **Mod 管理**：集成 Modrinth，支持 Mod 的安装、更新和版本兼容性检查。
+- **资源管理**：支持资源包和光影的管理，让玩家轻松定制游戏体验。
+- **自动更新**：支持 Minecraft 版本和启动器的自动更新，确保玩家始终使用最新版本。
+- **原生体验**：专为 macOS 设计，充分利用 macOS 的特性，提供最佳的用户体验。
 
 ## 功能特性
 
@@ -58,98 +68,38 @@ open Launcher.xcodeproj
 - 光影包管理
 - 数据包管理
 
-## 项目结构
+## Project Structure
+
+The project follows a standard Swift/SwiftUI layout:
 
 ```
 Launcher/
-├── LauncherApp.swift          # 应用程序入口点
-├── Launcher.entitlements      # 应用程序权限配置
-│
-├── Core/                      # 核心功能模块
-│   ├── Config/               # 配置管理
-│   │   ├── AppConfig.swift   # 应用程序配置
-│   │   └── UserConfig.swift  # 用户配置
-│   │
-│   ├── Services/             # 服务层
-│   │   ├── AuthService.swift # 认证服务
-│   │   ├── GameService.swift # 游戏服务
-│   │   └── UpdateService.swift # 更新服务
-│   │
-│   ├── Utils/                # 工具类
-│   │   ├── FileManager.swift # 文件管理
-│   │   └── Logger.swift      # 日志工具
-│   │
-│   └── Views/                # 核心视图组件
-│       ├── AddPlayerAlertView.swift # 添加玩家弹窗
-│       └── ContentTool.swift # 内容工具视图
-│
-├── Views/                     # 界面视图
-│   ├── Components/           # 可复用组件
-│   │   ├── PlayerMenuView.swift    # 玩家菜单
-│   │   ├── PlayerComponents.swift  # 玩家相关组件
-│   │   └── PlayerSelector.swift    # 玩家选择器
-│   │
-│   ├── Player/               # 玩家相关视图
-│   │   └── PlayerProfileView.swift # 玩家资料视图
-│   │
-│   └── Settings/             # 设置相关视图
-│
-├── Features/                  # 功能模块
-│   ├── VersionManager/       # 版本管理
-│   ├── ModManager/           # Mod 管理
-│   └── ResourceManager/      # 资源管理
-│
-├── Resources/                # 资源文件
-│   ├── en.lproj/            # 英文本地化
-│   ├── zh-Hans.lproj/       # 简体中文本地化
-│   └── zh-Hant.lproj/       # 繁体中文本地化
-│
-└── Assets.xcassets/         # 资源文件
-    ├── AppIcon.appiconset/  # 应用图标
-    └── Colors.colorset/     # 颜色资源
+├── LauncherApp.swift
+├── Models/
+├── Views/
+├── Services/
+├── Utils/
+├── Config/
+├── Features/
+├── Repositories/
+├── Resources/
+│   ├── en.lproj/
+│   ├── zh-Hans.lproj/
+│   ├── zh-Hant.lproj/
+│   └── ...
+├── Assets.xcassets/
+└── Launcher.entitlements
 ```
 
-### 主要目录说明
-
-#### Core/
-- **Config/**: 管理应用程序和用户的配置信息
-  - `AppConfig.swift`: 处理应用程序级别的配置
-  - `UserConfig.swift`: 管理用户特定的设置和偏好
-
-- **Services/**: 提供核心业务逻辑服务
-  - `AuthService.swift`: 处理用户认证和授权
-  - `GameService.swift`: 管理游戏启动和运行
-  - `UpdateService.swift`: 处理应用程序和游戏更新
-
-- **Utils/**: 提供通用工具类
-  - `FileManager.swift`: 处理文件操作
-  - `Logger.swift`: 提供日志记录功能
-
-- **Views/**: 包含核心视图组件
-  - `AddPlayerAlertView.swift`: 添加新玩家的界面
-  - `ContentTool.swift`: 内容管理工具界面
-
-#### Views/
-- **Components/**: 可复用的UI组件
-  - `PlayerMenuView.swift`: 玩家菜单组件
-  - `PlayerComponents.swift`: 玩家相关UI组件
-  - `PlayerSelector.swift`: 玩家选择器组件
-
-- **Player/**: 玩家相关视图
-  - `PlayerProfileView.swift`: 玩家资料展示界面
-
-- **Settings/**: 应用程序设置界面
-
-#### Features/
-- **VersionManager/**: 管理 Minecraft 版本
-- **ModManager/**: 处理 Mod 的安装和管理
-- **ResourceManager/**: 管理资源包和光影
-
-#### Resources/
-- 包含多语言本地化文件
-  - `en.lproj/`: 英文资源
-  - `zh-Hans.lproj/`: 简体中文资源
-  - `zh-Hant.lproj/`: 繁体中文资源
+- **Models/**: Data structures and entity models.
+- **Views/**: SwiftUI views, organized by screens and components.
+- **Services/**: Network, data, and API services.
+- **Utils/**: Utility classes, helper functions, and global managers.
+- **Config/**: Configuration files and settings.
+- **Features/**: Feature-specific modules and components.
+- **Repositories/**: Data access and storage implementations.
+- **Resources/**: Localization files and other resources.
+- **Assets.xcassets/**: Images, icons, and other assets.
 
 ## 贡献指南
 
