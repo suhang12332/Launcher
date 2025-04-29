@@ -1,19 +1,23 @@
 // Common
 "app.name" = "Launcher";
+"common.cancel" = "Cancel";
+"common.confirm" = "Confirm";
+"common.error" = "Error";
+"common.ok" = "OK";
 
 // Sidebar
-"sidebar.resources" = "Resources";
-"sidebar.mods" = "Mods";
-"sidebar.dataPacks" = "Data Packs";
-"sidebar.shaders" = "Shaders";
-"sidebar.resourcePacks" = "Resource Packs";
-"sidebar.modPacks" = "Mod Packs";
-"sidebar.addGame" = "Add Game";
+"resource" = "Resources";
+"mod" = "Mods";
+"datapack" = "Data Packs";
+"shader" = "Shaders";
+"resourcepack" = "Resource Packs";
+"modpack" = "Mod Packs";
+"addGame" = "Add Game";
 
 // Player
 "player.add" = "Add Player";
 "player.add.title" = "Add Player";
-"player.add.message" = "Please enter player name. Note: Player name must be unique, existing player names cannot be added.";
+"player.add.message" = "Please enter player name. Note: Player name must be unique, existing names cannot be added";
 "player.add.cancel" = "Cancel";
 "player.add.confirm" = "Add";
 "player.add.error.exists" = "Player name already exists";
@@ -21,6 +25,7 @@
 "player.add.success" = "Player added successfully";
 "player.remove" = "Remove Player";
 "player.select" = "Select Player";
+"player.remove.confirm" = "Are you sure you want to remove %@?";
 
 // Game Version
 "game.version.title" = "Game Version";
@@ -29,15 +34,20 @@
 "game.version.inspector.hide" = "Hide Inspector";
 "game.version.loading" = "Loading...";
 "game.version.error" = "Error: %@";
+"game.version.view.grid" = "View as Grid";
+"game.version.view.list" = "View as List";
 
 // Game Form
 "game.form.title" = "Add Game";
+"game.form.icon" = "Game Icon";
+"game.form.icon.description" = "Select an icon for the game";
 "game.form.name" = "Game Name";
-"game.form.loader" = "Game Loader";
+"game.form.name.placeholder" = "Enter game name";
 "game.form.version" = "Game Version";
-"game.form.cancel" = "Cancel";
-"game.form.confirm" = "Add";
-"game.form.selectIcon" = "Select Icon";
+"game.form.version.placeholder" = "Enter game version";
+"game.form.modloader" = "Mod Loader";
+"game.form.modloader.placeholder" = "Enter mod loader";
+"game.form.save.error" = "Failed to save game information";
 
 // Settings
 "settings.general" = "General";
@@ -47,8 +57,14 @@
 "settings.language.en" = "English";
 "settings.language.zh-Hans" = "Simplified Chinese";
 "settings.language.zh-Hant" = "Traditional Chinese";
-"settings.restart.title" = "Changing language";
-"settings.restart.message" = "Changing language requires restart to take effect";
+"settings.restart.title" = "Change Language";
+"settings.restart.message" = "Changing language requires restarting the application";
 "settings.restart.cancel" = "Cancel";
 "settings.restart.confirm" = "Restart";
-"settings.chinese.message" = "感谢使用中文";
+"settings.chinese.message" = "Continue changes require restart, continue?";
+
+"modrinth.search.error" = "Error searching for %@";
+
+"error.network.offline" = "Network is offline";
+"error.network.timeout" = "Request timed out";
+"error.unknown" = "An unknown error occurred";

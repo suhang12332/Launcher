@@ -12,15 +12,15 @@ public enum SidebarItem: String, CaseIterable, Identifiable {
     public var localizedName: String {
         switch self {
         case .mods:
-            return NSLocalizedString("sidebar.mods", comment: "")
+            return NSLocalizedString("mod", comment: "")
         case .dataPacks:
-            return NSLocalizedString("sidebar.dataPacks", comment: "")
+            return NSLocalizedString("datapack", comment: "")
         case .shaders:
-            return NSLocalizedString("sidebar.shaders", comment: "")
+            return NSLocalizedString("shader", comment: "")
         case .resourcePacks:
-            return NSLocalizedString("sidebar.resourcePacks", comment: "")
+            return NSLocalizedString("resourcepack", comment: "")
         case .modPacks:
-            return NSLocalizedString("sidebar.modPacks", comment: "")
+            return NSLocalizedString("modpack", comment: "")
         }
     }
     
@@ -36,6 +36,21 @@ public enum SidebarItem: String, CaseIterable, Identifiable {
             return "photo.stack"
         case .modPacks:
             return "shippingbox"
+        }
+    }
+    
+    public var name: String {
+        switch self {
+        case .mods:
+            return "mod"
+        case .dataPacks:
+            return "datapack"
+        case .shaders:
+            return "shader"
+        case .resourcePacks:
+            return "resourcepack"
+        case .modPacks:
+            return "modpack"
         }
     }
 } 

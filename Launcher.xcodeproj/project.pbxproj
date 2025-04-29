@@ -24,9 +24,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		9059FE1A2DBA7E360066F2EB /* Launcher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Launcher.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		9059FE282DBA7E370066F2EB /* LauncherTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LauncherTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		9059FE322DBA7E370066F2EB /* LauncherUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LauncherUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		902E9BA42DC0F326005BAE19 /* Launcher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Launcher.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		902E9BA52DC0F326005BAE19 /* LauncherTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LauncherTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		902E9BA62DC0F326005BAE19 /* LauncherUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LauncherUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -75,21 +75,13 @@
 		9059FE112DBA7E360066F2EB = {
 			isa = PBXGroup;
 			children = (
-				9059FE1C2DBA7E360066F2EB /* Launcher */,
 				9059FE2B2DBA7E370066F2EB /* LauncherTests */,
 				9059FE352DBA7E370066F2EB /* LauncherUITests */,
-				9059FE1B2DBA7E360066F2EB /* Products */,
+				9059FE1C2DBA7E360066F2EB /* Launcher */,
+				902E9BA42DC0F326005BAE19 /* Launcher.app */,
+				902E9BA52DC0F326005BAE19 /* LauncherTests.xctest */,
+				902E9BA62DC0F326005BAE19 /* LauncherUITests.xctest */,
 			);
-			sourceTree = "<group>";
-		};
-		9059FE1B2DBA7E360066F2EB /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				9059FE1A2DBA7E360066F2EB /* Launcher.app */,
-				9059FE282DBA7E370066F2EB /* LauncherTests.xctest */,
-				9059FE322DBA7E370066F2EB /* LauncherUITests.xctest */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -114,7 +106,7 @@
 			packageProductDependencies = (
 			);
 			productName = Launcher;
-			productReference = 9059FE1A2DBA7E360066F2EB /* Launcher.app */;
+			productReference = 902E9BA42DC0F326005BAE19 /* Launcher.app */;
 			productType = "com.apple.product-type.application";
 		};
 		9059FE272DBA7E370066F2EB /* LauncherTests */ = {
@@ -137,7 +129,7 @@
 			packageProductDependencies = (
 			);
 			productName = LauncherTests;
-			productReference = 9059FE282DBA7E370066F2EB /* LauncherTests.xctest */;
+			productReference = 902E9BA52DC0F326005BAE19 /* LauncherTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		9059FE312DBA7E370066F2EB /* LauncherUITests */ = {
@@ -160,7 +152,7 @@
 			packageProductDependencies = (
 			);
 			productName = LauncherUITests;
-			productReference = 9059FE322DBA7E370066F2EB /* LauncherUITests.xctest */;
+			productReference = 902E9BA62DC0F326005BAE19 /* LauncherUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -197,8 +189,10 @@
 			);
 			mainGroup = 9059FE112DBA7E360066F2EB;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 9059FE1B2DBA7E360066F2EB /* Products */;
+			productRefGroup = 9059FE112DBA7E360066F2EB;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -414,10 +408,10 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = macosx;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 2.4;
 			};
 			name = Debug;
@@ -451,10 +445,10 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = macosx;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 2.4;
 			};
 			name = Release;

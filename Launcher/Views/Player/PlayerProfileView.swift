@@ -89,7 +89,7 @@ private struct InfoRow: View {
         }
     }
 }
-
-#Preview {
-    PlayerProfileView(player: Player(id: UUID(), name: "Steve"))
-} 
+//
+//#Preview {
+//    PlayerProfileView(player: Player(id: UUID(), name: "Steve"))
+//} 

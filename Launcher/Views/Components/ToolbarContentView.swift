@@ -19,8 +19,9 @@ struct ToolbarContentView<Content: View, ToolbarContent: View>: View {
     }
     
     var body: some View {
-        List {
+        VStack(spacing: 0) {
             content
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .toolbar {
             ToolbarItemGroup {

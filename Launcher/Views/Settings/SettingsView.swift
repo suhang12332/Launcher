@@ -32,7 +32,7 @@ struct SettingsView: View {
                 }
             }
             .tabItem {
-                Label(NSLocalizedString("settings.general", comment: ""), systemImage: "gearshape.fill")
+                Label(NSLocalizedString("settings.general", comment: ""), systemImage: "gearshape")
             }
             
             // About
@@ -55,7 +55,7 @@ struct SettingsView: View {
                 }
             }
             .tabItem {
-                Label(NSLocalizedString("settings.about", comment: ""), systemImage: "info.circle.fill")
+                Label(NSLocalizedString("settings.about", comment: ""), systemImage: "info.circle")
             }
         }
         .frame(width: 500, height: 300)
@@ -69,11 +69,7 @@ struct SettingsView: View {
                 restartApp()
             }
         } message: {
-            if languageManager.getCurrentLanguage() == "zh-Hans" || languageManager.getCurrentLanguage() == "zh-Hant" {
-                Text(NSLocalizedString("settings.chinese.message", comment: ""))
-            } else {
-                Text(NSLocalizedString("settings.restart.message", comment: ""))
-            }
+            Text(NSLocalizedString("settings.restart.message", comment: ""))
         }
     }
     

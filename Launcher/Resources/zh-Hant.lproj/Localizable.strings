@@ -1,14 +1,18 @@
 // Common
 "app.name" = "啟動器";
+"common.cancel" = "取消";
+"common.confirm" = "確認";
+"common.error" = "錯誤";
+"common.ok" = "確定";
 
 // Sidebar
-"sidebar.resources" = "資源列表";
-"sidebar.mods" = "模組";
-"sidebar.dataPacks" = "數據包";
-"sidebar.shaders" = "光影";
-"sidebar.resourcePacks" = "資源包";
-"sidebar.modPacks" = "整合包";
-"sidebar.addGame" = "添加遊戲";
+"resource" = "資源列表";
+"mod" = "模組";
+"datapack" = "數據包";
+"shader" = "光影";
+"resourcepack" = "資源包";
+"modpack" = "整合包";
+"addGame" = "添加遊戲";
 
 // Player
 "player.add" = "添加玩家";
@@ -21,6 +25,7 @@
 "player.add.success" = "添加玩家成功";
 "player.remove" = "移除玩家";
 "player.select" = "選擇玩家";
+"player.remove.confirm" = "確定要移除 %@ 嗎？";
 
 // Game Version
 "game.version.title" = "遊戲版本";
@@ -29,26 +34,37 @@
 "game.version.inspector.hide" = "隱藏檢查器";
 "game.version.loading" = "加載中...";
 "game.version.error" = "錯誤：%@";
+"game.version.view.grid" = "以畫廊方式查看";
+"game.version.view.list" = "以列表方式查看";
 
 // Game Form
 "game.form.title" = "添加遊戲";
+"game.form.icon" = "遊戲圖標";
+"game.form.icon.description" = "為遊戲選擇圖標";
 "game.form.name" = "遊戲名稱";
-"game.form.loader" = "遊戲加載器";
+"game.form.name.placeholder" = "請輸入遊戲名稱";
 "game.form.version" = "遊戲版本";
-"game.form.cancel" = "取消";
-"game.form.confirm" = "添加";
-"game.form.selectIcon" = "選擇圖標";
+"game.form.version.placeholder" = "請輸入遊戲版本";
+"game.form.modloader" = "mod加載器";
+"game.form.modloader.placeholder" = "請輸入mod加載器";
+"game.form.save.error" = "保存遊戲信息失敗";
 
 // Settings
 "settings.general" = "通用";
 "settings.about" = "關於";
 "settings.language" = "語言";
 "settings.language.system" = "跟隨系統";
-"settings.language.en" = "英語";
+"settings.language.en" = "English";
 "settings.language.zh-Hans" = "簡體中文";
 "settings.language.zh-Hant" = "繁體中文";
 "settings.restart.title" = "修改語言";
 "settings.restart.message" = "修改語言需要重啟應用才能生效";
 "settings.restart.cancel" = "取消";
 "settings.restart.confirm" = "重啟";
-"settings.chinese.message" = "漢語博大精深，學習漢語，學習中國文化，繼續修改需要重啟，是否繼續？";
+"settings.chinese.message" = "繼續修改需要重啟，是否繼續？";
+
+"modrinth.search.error" = "查詢%@錯誤";
+
+"error.network.offline" = "網絡未連接";
+"error.network.timeout" = "請求超時";
+"error.unknown" = "發生未知錯誤";

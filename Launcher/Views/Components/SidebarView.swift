@@ -1,12 +1,12 @@
 import SwiftUI
 
 public struct SidebarView: View {
-    @Binding var selection: SidebarItem?
+    @Binding var selection: SidebarItem
     
     // State to control the showing of the sheet
     @State private var showingGameForm = false
     
-    public init(selection: Binding<SidebarItem?>) {
+    public init(selection: Binding<SidebarItem>) {
         self._selection = selection
     }
     
@@ -32,7 +32,8 @@ public struct SidebarView: View {
         .listStyle(.sidebar)
         // The sheet to present the form
         .sheet(isPresented: $showingGameForm) {
-            GameFormView()
+            GameFormView().presentationDetents([.medium, .large])
+                .presentationBackgroundInteraction(.automatic)
         }
     }
 }
