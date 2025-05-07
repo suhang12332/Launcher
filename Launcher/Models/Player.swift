@@ -12,8 +12,8 @@ struct Player: Identifiable, Codable, Equatable {
     var isCurrent: Bool // 新增字段，是否为当前正在玩的玩家
     var gameRecords: [String: PlayerGameRecord] // key: 游戏名或ID
 
-    init(name: String, createdAt: Date = Date(), lastPlayed: Date = Date(), isOnlineAccount: Bool = false, isCurrent: Bool = false, gameRecords: [String: PlayerGameRecord] = [:]) {
-        let uid = PlayerUtils.generateOfflineUUID(for: name)
+    init(name: String, createdAt: Date = Date(), lastPlayed: Date = Date(), isOnlineAccount: Bool = false, isCurrent: Bool = false, gameRecords: [String: PlayerGameRecord] = [:]) throws {
+        let uid = try PlayerUtils.generateOfflineUUID(for: name)
         self.id = uid
         self.name = name
         self.avatarName = PlayerUtils.avatarName(for: uid) ?? "steve"

@@ -90,7 +90,7 @@ private struct PlayerAvatarView: View {
             .drawingGroup()
             .frame(width: size, height: size)
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-            .onAppear {
+            .task {
                 if !hasLoggedLoad {
                     Logger.shared.debug("Trying to load player image: \(player.avatarName)")
                     hasLoggedLoad = true

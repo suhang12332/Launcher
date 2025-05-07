@@ -2,10 +2,7 @@ import Foundation
 
 
 enum ModrinthService {
-    enum SearchIndex: String {
-        case relevance, downloads, follows, newest, updated
-    }
-
+    
     static func fetchProject(id: String) async throws -> ModrinthProject {
         let (data, _) = try await URLSession.shared.data(from: URLConfig.API.Modrinth.project(id: id))
         return try JSONDecoder().decode(ModrinthProject.self, from: data)
@@ -13,13 +10,13 @@ enum ModrinthService {
 
     static func searchProjects(
         facets: [[String]]? = nil,
-        index: SearchIndex = .relevance,
+        index: String,
         offset: Int = 0,
         limit: Int
     ) async throws -> ModrinthResult {
         var components = URLComponents(url: URLConfig.API.Modrinth.search, resolvingAgainstBaseURL: true)!
         var queryItems = [
-            URLQueryItem(name: "index", value: index.rawValue),
+            URLQueryItem(name: "index", value: index),
             URLQueryItem(name: "offset", value: String(offset)),
             URLQueryItem(name: "limit", value: String(min(limit, 100)))
         ]

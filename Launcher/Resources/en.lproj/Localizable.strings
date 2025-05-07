@@ -5,6 +5,14 @@
 "common.error" = "Error";
 "common.ok" = "OK";
 
+// Menu
+"menu.sort" = "Sort";
+"menu.sort.relevance" = "Relevance";
+"menu.sort.downloads" = "Downloads";
+"menu.sort.follows" = "Follows";
+"menu.sort.newest" = "Newest";
+"menu.sort.updated" = "Updated";
+
 // Sidebar
 "resource" = "Resources";
 "mod" = "Mods";
@@ -12,7 +20,7 @@
 "shader" = "Shaders";
 "resourcepack" = "Resource Packs";
 "modpack" = "Mod Packs";
-"addGame" = "Add Game";
+"addgame" = "Add Game";
 
 // Player
 "player.add" = "Add Player";
@@ -32,7 +40,7 @@
 "game.version.settings" = "Settings";
 "game.version.inspector.show" = "Show Inspector";
 "game.version.inspector.hide" = "Hide Inspector";
-"game.version.loading" = "Loading...";
+"game.version.loading" = "Loading %@ ...";
 "game.version.error" = "Error: %@";
 "game.version.view.grid" = "View as Grid";
 "game.version.view.list" = "View as List";
@@ -55,8 +63,8 @@
 "settings.language" = "Language";
 "settings.language.system" = "System";
 "settings.language.en" = "English";
-"settings.language.zh-Hans" = "Simplified Chinese";
-"settings.language.zh-Hant" = "Traditional Chinese";
+"settings.language.zh-Hans" = "简体中文";
+"settings.language.zh-Hant" = "簡體中文";
 "settings.restart.title" = "Change Language";
 "settings.restart.message" = "Changing language requires restarting the application";
 "settings.restart.cancel" = "Cancel";
@@ -68,3 +76,14 @@
 "error.network.offline" = "Network is offline";
 "error.network.timeout" = "Request timed out";
 "error.unknown" = "An unknown error occurred";
+
+// Filter
+"filter.version" = "Game Version";
+"filter.category" = "Category";
+
+// Version Types
+"version.type.all" = "All Types";
+"version.type.release" = "Release";
+"version.type.snapshot" = "Snapshot";
+"version.type.old_alpha" = "Old Alpha";
+"version.type.old_beta" = "Old Beta";

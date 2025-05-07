@@ -4,14 +4,7 @@ struct InspectorToolbar: View {
     @Binding var showingInspector: Bool
     
     var body: some View {
-        Text(NSLocalizedString("", comment: ""))
-            .font(.headline)
-        Spacer()
-        Button(action: {}) {
-            Image(systemName: "gear")
-        }
-        .help(NSLocalizedString("game.version.settings", comment: ""))
-        Spacer()
+        
         Button(action: {
             withAnimation {
                 showingInspector.toggle()

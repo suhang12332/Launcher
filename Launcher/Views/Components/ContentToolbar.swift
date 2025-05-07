@@ -1,29 +1,44 @@
 import SwiftUI
 
 struct ContentToolbar: View {
+    // MARK: - Properties
     @Binding var showingAddPlayer: Bool
     @StateObject private var playerService = PlayerService.shared
     
+    // MARK: - State
     @State private var playerName = ""
     @State private var isPlayerNameValid = false
     @State private var playerNameError: String?
-    @State private var showError = false
     
+    // MARK: - Body
     var body: some View {
-        // 有玩家 显示添加玩家的头像
         if !playerService.players.isEmpty {
             PlayerSelector()
-            Spacer()
+            
         }
-        Button(action: {
-            showingAddPlayer = true
-        }) {
-            Label("player.add",systemImage: "person.badge.plus")
+        Spacer()
+        addPlayerButton.alert(NSLocalizedString("player.add.title", comment: ""), isPresented: $showingAddPlayer) {
+            addPlayerAlertContent
+        } message: {
+            Text(NSLocalizedString("player.add.message", comment: ""))
+        }
+
+        
+    }
+    
+    // MARK: - UI Components
+    
+    private var addPlayerButton: some View {
+        Button(action: { showingAddPlayer = true }) {
+            Label(NSLocalizedString("player.add", comment: ""), systemImage: "person.badge.plus")
         }
         .help(NSLocalizedString("player.add", comment: ""))
-        .alert(NSLocalizedString("player.add.title", comment: ""), isPresented: $showingAddPlayer) {
+    }
+    
+    private var addPlayerAlertContent: some View {
+        Group {
             TextField(NSLocalizedString("player.add", comment: ""), text: $playerName)
-                .onChange(of: playerName) { oldValue, newValue in
+                .onChange(of: playerName) { _, newValue in
                     checkPlayerName(newValue)
                 }
             
@@ -32,20 +47,37 @@ struct ContentToolbar: View {
             }
             
             Button(NSLocalizedString("player.add.confirm", comment: "")) {
-                if !playerService.players.contains(where: { $0.name == playerName }) {
-                    let newPlayer = Player(name: playerName)
-                    playerService.addPlayer(newPlayer)
-                    resetState()
-                } else {
-                    playerNameError = NSLocalizedString("player.add.error.exists", comment: "")
-                }
+                addNewPlayer()
             }
             .disabled(!isPlayerNameValid)
-        } message: {
-            VStack {
-                Text(NSLocalizedString("player.add.message", comment: ""))
-            }
         }
+    }
+    
+    // MARK: - Private Methods
+    
+    private func addNewPlayer() {
+        do {
+            try validateAndAddPlayer()
+            resetState()
+        } catch {
+            playerNameError = error.localizedDescription
+        }
+    }
+    
+    private func validateAndAddPlayer() throws {
+        guard !playerName.isEmpty else {
+            throw PlayerError.invalidUsername
+        }
+        
+        // Check if player name already exists
+        if playerService.getAllPlayers().contains(where: { $0.name == playerName }) {
+            throw PlayerError.custom(NSLocalizedString("player.add.error.exists", comment: ""))
+        }
+        
+        // Create new player
+        let player = try Player(name: playerName)
+        playerService.addPlayer(player)
+        showingAddPlayer = false
     }
     
     private func resetState() {
@@ -66,5 +98,13 @@ struct ContentToolbar: View {
             isPlayerNameValid = true
             playerNameError = nil
         }
+    }
+}
+
+// MARK: - Player Error Extension
+
+extension PlayerError {
+    static var playerNameExists: PlayerError {
+        .init(localizedDescription: NSLocalizedString("player.add.error.exists", comment: ""))
     }
 } 

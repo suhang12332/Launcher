@@ -12,7 +12,7 @@ public struct SidebarView: View {
     
     public var body: some View {
         List(selection: $selection) {
-            Section(NSLocalizedString("sidebar.resources", comment: "")) {
+            Section(NSLocalizedString("resources", comment: "")) {
                 ForEach(SidebarItem.allCases) { item in
                     Label(item.localizedName, systemImage: item.icon)
                         .tag(item)
@@ -23,7 +23,7 @@ public struct SidebarView: View {
             Button(action: {
                 showingGameForm.toggle()
             }, label: {
-                Label(NSLocalizedString("sidebar.addGame", comment: ""), systemImage: "gamecontroller")
+                Label(NSLocalizedString("addgame", comment: ""), systemImage: "gamecontroller")
             })
             .buttonStyle(.borderless)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -38,6 +38,3 @@ public struct SidebarView: View {
     }
 }
 
-#Preview {
-    SidebarView(selection: .constant(.mods))
-}

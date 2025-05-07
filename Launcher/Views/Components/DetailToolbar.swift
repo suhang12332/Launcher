@@ -1,39 +1,71 @@
 import SwiftUI
 
 struct DetailToolbar: View {
+    // MARK: - Properties
     let totalItems: Int
     let itemsPerPage: Int
     @Binding var currentPage: Int
-
+    @Binding var sortIndex: String
+    
+    // MARK: - Computed Properties
     var totalPages: Int {
         max(1, Int(ceil(Double(totalItems) / Double(itemsPerPage))))
     }
-
-    var body: some View {
-        HStack {
-            HStack(spacing: 8) {
-                Button(action: { if currentPage > 1 { currentPage -= 1 } }) {
-                    Image(systemName: "chevron.left")
-                }
-                .disabled(currentPage == 1)
-                HStack(spacing: 8) {
-                    Text("第 \(currentPage) 页")
-                    Divider()
-                        .frame(height: 16)
-                    Text("共 \(totalPages) 页")
-                }
-                .font(.subheadline)
-                Button(action: { if currentPage < totalPages { currentPage += 1 } }) {
-                    Image(systemName: "chevron.right")
-                }
-                .disabled(currentPage == totalPages)
-            }
-            .padding(.horizontal, 8)
-            // 设置按钮
-            Button(action: {}) {
-                Image(systemName: "gear")
-            }
-            .help(NSLocalizedString("game.version.settings", comment: ""))
+    
+    private var currentSortTitle: String {
+        NSLocalizedString("menu.sort.\(sortIndex)", comment: "")
+    }
+    
+    // MARK: - Private Methods
+    private func handlePageChange(_ increment: Int) {
+        let newPage = currentPage + increment
+        if newPage >= 1 && newPage <= totalPages {
+            currentPage = newPage
         }
     }
-} 
+    
+    // MARK: - Body
+    var body: some View {
+        sortMenu
+        paginationControls
+        
+    }
+    
+    // MARK: - Subviews
+    private var sortMenu: some View {
+        Menu {
+            ForEach(["relevance", "downloads", "follows", "newest", "updated"], id: \.self) { sort in
+                Button(NSLocalizedString("menu.sort.\(sort)", comment: "")) {
+                    sortIndex = sort
+                }
+            }
+        } label: {
+            Text(currentSortTitle)
+        }
+    }
+    
+    private var paginationControls: some View {
+        HStack(spacing: 8) {
+            // Previous Page Button
+            Button(action: { handlePageChange(-1) }) {
+                Image(systemName: "chevron.left")
+            }
+            .disabled(currentPage == 1)
+            
+            // Page Info
+            HStack(spacing: 8) {
+                Text("第 \(currentPage) 页")
+                Divider()
+                    .frame(height: 16)
+                Text("共 \(totalPages) 页")
+            }
+            .font(.subheadline)
+            
+            // Next Page Button
+            Button(action: { handlePageChange(1) }) {
+                Image(systemName: "chevron.right")
+            }
+            .disabled(currentPage == totalPages)
+        }
+    }
+}

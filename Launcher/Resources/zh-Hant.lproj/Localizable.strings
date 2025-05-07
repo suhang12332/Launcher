@@ -5,6 +5,14 @@
 "common.error" = "錯誤";
 "common.ok" = "確定";
 
+// Menu
+"menu.sort" = "排序";
+"menu.sort.relevance" = "相關度";
+"menu.sort.downloads" = "下載量";
+"menu.sort.follows" = "關注數";
+"menu.sort.newest" = "最新";
+"menu.sort.updated" = "最近更新";
+
 // Sidebar
 "resource" = "資源列表";
 "mod" = "模組";
@@ -12,7 +20,7 @@
 "shader" = "光影";
 "resourcepack" = "資源包";
 "modpack" = "整合包";
-"addGame" = "添加遊戲";
+"addgame" = "添加遊戲";
 
 // Player
 "player.add" = "添加玩家";
@@ -32,7 +40,7 @@
 "game.version.settings" = "設置";
 "game.version.inspector.show" = "顯示檢查器";
 "game.version.inspector.hide" = "隱藏檢查器";
-"game.version.loading" = "加載中...";
+"game.version.loading" = "加載%@中...";
 "game.version.error" = "錯誤：%@";
 "game.version.view.grid" = "以畫廊方式查看";
 "game.version.view.list" = "以列表方式查看";
@@ -68,3 +76,14 @@
 "error.network.offline" = "網絡未連接";
 "error.network.timeout" = "請求超時";
 "error.unknown" = "發生未知錯誤";
+
+// Filter
+"filter.version" = "遊戲版本";
+"filter.category" = "分類";
+
+// Version Types
+"version.type.all" = "所有類型";
+"version.type.release" = "正式版";
+"version.type.snapshot" = "快照版";
+"version.type.old_alpha" = "舊版 Alpha";
+"version.type.old_beta" = "舊版 Beta";

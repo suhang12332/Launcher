@@ -11,6 +11,9 @@ struct ContentView: View {
     @State private var currentPage: Int = 1
     @State private var totalItems: Int = 0
     @State private var itemsPerPage: Int = 20
+    @State private var sortIndex: String = "relevance"
+    @State private var selectedVersion: String = ""
+    @State private var selectedCategory: String = ""
     
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
@@ -18,20 +21,24 @@ struct ContentView: View {
                 .navigationSplitViewColumnWidth(180)
         } content: {
             ToolbarContentView(title: NSLocalizedString("sidebar.resources", comment: "")) {
-//                if let selectedItem {
-//                    switch selectedItem {
-//                    case .mods:
-//                        ModsContent()
-//                    case .dataPacks:
-//                        ModPacksContent()
-//                    case .shaders:
-//                        ShadersContent()
-//                    case .resourcePacks:
-//                        ResourcePacksContent()
-//                    case .modPacks:
-//                        ModPacksContent()
+                VStack(spacing: 0) {
+                    CommonContent(selectedVersion: $selectedVersion).frame(minWidth: 230,idealWidth: 230,maxWidth: 350,idealHeight: 80)
+                    
+//                    if let selectedItem {
+//                        switch selectedItem {
+//                        case .mods:
+//                            ModsContent()
+//                        case .dataPacks:
+//                            ModPacksContent()
+//                        case .shaders:
+//                            ShadersContent()
+//                        case .resourcePacks:
+//                            ResourcePacksContent()
+//                        case .modPacks:
+//                            ModPacksContent()
+//                        }
 //                    }
-//                }
+                }
             } toolbarContent: {
                 ContentToolbar(showingAddPlayer: $showingAddPlayer)
             }
@@ -42,13 +49,15 @@ struct ContentView: View {
                     query: selectedItem.name,
                     currentPage: $currentPage,
                     totalItems: $totalItems,
-                    itemsPerPage: $itemsPerPage
+                    itemsPerPage: $itemsPerPage,
+                    sortIndex: $sortIndex
                 )
             } toolbarContent: {
                 DetailToolbar(
                     totalItems: totalItems,
                     itemsPerPage: itemsPerPage,
-                    currentPage: $currentPage
+                    currentPage: $currentPage,
+                    sortIndex: $sortIndex
                 )
             }
         }.inspector(isPresented: $showingInspector) {
@@ -58,6 +67,13 @@ struct ContentView: View {
                 InspectorToolbar(showingInspector: $showingInspector)
             }
         }
+        .onChange(of: selectedItem) { _, _ in
+            sortIndex = "relevance"
+            currentPage = 1
+        }
     }
-} 
+}
 
+#Preview{
+    ContentView()
+}
