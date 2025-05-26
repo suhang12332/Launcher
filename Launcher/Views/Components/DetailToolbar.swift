@@ -60,6 +60,7 @@ struct DetailToolbar: View {
                 Text("共 \(totalPages) 页")
             }
             .font(.subheadline)
+            .foregroundStyle(.secondary)
             
             // Next Page Button
             Button(action: { handlePageChange(1) }) {

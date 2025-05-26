@@ -52,9 +52,7 @@
 "game.form.name" = "游戏名称";
 "game.form.name.placeholder" = "请输入游戏名称";
 "game.form.version" = "游戏版本";
-"game.form.version.placeholder" = "请输入游戏版本";
 "game.form.modloader" = "mod加载器";
-"game.form.modloader.placeholder" = "请输入mod加载器";
 "game.form.save.error" = "保存游戏信息失败";
 
 // Settings
@@ -80,12 +78,16 @@
 "error.unknown" = "发生未知错误"; 
 
 // Filter
+"filter.version.icon" = "🎮游戏版本";
 "filter.version" = "游戏版本";
-"filter.category" = "分类"; 
+"filter.category" = "分类";
+"filter.environment" = "环境";
+"filter.behavior" = "行为";
+"filter.performance" = "性能要求";
+"filter.resolutions" = "分辨率";
+"category.loading" = "正在加载%@...";
 
-// Version Types
-"version.type.all" = "所有类型";
-"version.type.release" = "正式版";
-"version.type.snapshot" = "快照版";
-"version.type.old_alpha" = "旧版 Alpha";
-"version.type.old_beta" = "旧版 Beta"; 
+
+// Environment
+"environment.client" = "客户端";
+"environment.server" = "服务端"; 

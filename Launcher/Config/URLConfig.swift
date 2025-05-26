@@ -38,6 +38,23 @@ enum URLConfig {
             static func user(id: String) -> URL {
                 baseURL.appendingPathComponent("user/\(id)")
             }
+            
+            // 标签相关
+            enum Tag {
+                static let baseURL = Modrinth.baseURL.appendingPathComponent("tag")
+                
+                // 游戏版本
+                static let gameVersion = baseURL.appendingPathComponent("game_version")
+                
+                // 加载器
+                static let loader = baseURL.appendingPathComponent("loader")
+                
+                // 分类
+                static let category = baseURL.appendingPathComponent("category")
+                
+                // 许可证
+                static let license = baseURL.appendingPathComponent("license")
+            }
         }
         
         // 其他第三方 API

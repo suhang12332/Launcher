@@ -12,38 +12,33 @@ struct ContentView: View {
     @State private var totalItems: Int = 0
     @State private var itemsPerPage: Int = 20
     @State private var sortIndex: String = "relevance"
-    @State private var selectedVersion: String = ""
-    @State private var selectedCategory: String = ""
-    
+    @State private var selectedVersions: [String] = []
+    @State private var selectedLicenses: [String] = []
+    @State private var selectedCategories: [String] = []
+    @State private var selectedFeatures: [String] = []
+    @State private var selectedResolutions: [String] = []
+    @State private var selectedPerformanceImpact: [String] = []
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             SidebarView(selection: $selectedItem)
                 .navigationSplitViewColumnWidth(180)
         } content: {
             ToolbarContentView(title: NSLocalizedString("sidebar.resources", comment: "")) {
-                VStack(spacing: 0) {
-                    CommonContent(selectedVersion: $selectedVersion).frame(minWidth: 230,idealWidth: 230,maxWidth: 350,idealHeight: 80)
-                    
-//                    if let selectedItem {
-//                        switch selectedItem {
-//                        case .mods:
-//                            ModsContent()
-//                        case .dataPacks:
-//                            ModPacksContent()
-//                        case .shaders:
-//                            ShadersContent()
-//                        case .resourcePacks:
-//                            ResourcePacksContent()
-//                        case .modPacks:
-//                            ModPacksContent()
-//                        }
-//                    }
-                }
+                ModrinthContentView(
+                    selectedVersion: $selectedVersions,
+                    selectedLicense: $selectedLicenses,
+                    selectedItem: $selectedItem,
+                    selectedCategories: $selectedCategories,
+                    selectedFeatures: $selectedFeatures,
+                    selectedResolutions: $selectedResolutions,
+                    selectedPerformanceImpact: $selectedPerformanceImpact
+                )
             } toolbarContent: {
                 ContentToolbar(showingAddPlayer: $showingAddPlayer)
             }
-            .navigationSplitViewColumnWidth(min: 230, ideal: 230, max: 350)
+            .navigationSplitViewColumnWidth(min: 240, ideal: 240, max: 350)
         } detail: {
+
             ToolbarContentView(title: NSLocalizedString("game.version.title", comment: ""), showDivider: false) {
                 ModrinthDetailView(
                     query: selectedItem.name,
@@ -62,14 +57,22 @@ struct ContentView: View {
             }
         }.inspector(isPresented: $showingInspector) {
             ToolbarContentView(title: NSLocalizedString("game.version.title", comment: ""), showDivider: false) {
-                PlayerProfileView(player: playerService.selectedPlayer)
+//                PlayerProfileView(player: playerService.selectedPlayer)
             } toolbarContent: {
                 InspectorToolbar(showingInspector: $showingInspector)
             }
-        }
+        }.frame(minWidth: 600)
         .onChange(of: selectedItem) { _, _ in
+            // 重置所有状态
             sortIndex = "relevance"
             currentPage = 1
+            totalItems = 0
+            selectedVersions = []
+            selectedLicenses = []
+            selectedCategories = []
+            selectedFeatures = []
+            selectedResolutions = []
+            searchQuery = ""
         }
     }
 }

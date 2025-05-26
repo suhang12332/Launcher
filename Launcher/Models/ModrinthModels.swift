@@ -95,3 +95,39 @@ struct ModrinthResult: Codable {
         case totalHits = "total_hits"
     }
 } 
+
+// 游戏版本
+struct GameVersion: Codable, Identifiable {
+    let version: String
+    let version_type: String
+    let date: String
+    let major: Bool
+    
+    var id: String { version }
+}
+
+// 加载器
+struct Loader: Codable, Identifiable {
+    let name: String
+    let icon: String
+    let supported_project_types: [String]
+    
+    var id: String { name }
+}
+
+// 分类
+struct Category: Codable, Identifiable {
+    let name: String
+    let icon: String
+    let project_type: String
+    let header: String
+    
+    var id: String { name }
+}
+
+// 许可证
+struct License: Codable, Identifiable {
+    let name: String
+    let short: String
+    var id: String { name }
+}

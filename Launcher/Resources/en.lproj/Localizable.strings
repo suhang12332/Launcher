@@ -52,9 +52,7 @@
 "game.form.name" = "Game Name";
 "game.form.name.placeholder" = "Enter game name";
 "game.form.version" = "Game Version";
-"game.form.version.placeholder" = "Enter game version";
 "game.form.modloader" = "Mod Loader";
-"game.form.modloader.placeholder" = "Enter mod loader";
 "game.form.save.error" = "Failed to save game information";
 
 // Settings
@@ -64,7 +62,7 @@
 "settings.language.system" = "System";
 "settings.language.en" = "English";
 "settings.language.zh-Hans" = "简体中文";
-"settings.language.zh-Hant" = "簡體中文";
+"settings.language.zh-Hant" = "繁體中文";
 "settings.restart.title" = "Change Language";
 "settings.restart.message" = "Changing language requires restarting the application";
 "settings.restart.cancel" = "Cancel";
@@ -78,12 +76,19 @@
 "error.unknown" = "An unknown error occurred";
 
 // Filter
+"filter.version.icon" = "🎮Game Version";
 "filter.version" = "Game Version";
-"filter.category" = "Category";
+"filter.category" = "Categories";
+"filter.features" = "Features";
+"filter.resolutions" = "Resolutions";
+"filter.environment" = "Environment";
+"filter.behavior" = "Behavior";
+"filter.performance" = "Performance";
 
-// Version Types
-"version.type.all" = "All Types";
-"version.type.release" = "Release";
-"version.type.snapshot" = "Snapshot";
-"version.type.old_alpha" = "Old Alpha";
-"version.type.old_beta" = "Old Beta";
+
+
+"category.loading" = "Loading %@...";
+
+// Environment
+"environment.client" = "Client";
+"environment.server" = "Server";

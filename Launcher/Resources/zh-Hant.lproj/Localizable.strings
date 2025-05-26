@@ -52,9 +52,7 @@
 "game.form.name" = "遊戲名稱";
 "game.form.name.placeholder" = "請輸入遊戲名稱";
 "game.form.version" = "遊戲版本";
-"game.form.version.placeholder" = "請輸入遊戲版本";
 "game.form.modloader" = "mod加載器";
-"game.form.modloader.placeholder" = "請輸入mod加載器";
 "game.form.save.error" = "保存遊戲信息失敗";
 
 // Settings
@@ -63,7 +61,7 @@
 "settings.language" = "語言";
 "settings.language.system" = "跟隨系統";
 "settings.language.en" = "English";
-"settings.language.zh-Hans" = "簡體中文";
+"settings.language.zh-Hans" = "简体中文";
 "settings.language.zh-Hant" = "繁體中文";
 "settings.restart.title" = "修改語言";
 "settings.restart.message" = "修改語言需要重啟應用才能生效";
@@ -78,12 +76,18 @@
 "error.unknown" = "發生未知錯誤";
 
 // Filter
+"filter.version.icon" = "🎮遊戲版本";
 "filter.version" = "遊戲版本";
 "filter.category" = "分類";
+"filter.features" = "特性";
+"filter.resolutions" = "分辨率";
+"filter.environment" = "環境";
+"filter.behavior" = "行為";
+"filter.performance" = "性能要求";
 
-// Version Types
-"version.type.all" = "所有類型";
-"version.type.release" = "正式版";
-"version.type.snapshot" = "快照版";
-"version.type.old_alpha" = "舊版 Alpha";
-"version.type.old_beta" = "舊版 Beta";
+
+"category.loading" = "正在加載%@...";
+
+// Environment
+"environment.client" = "客戶端";
+"environment.server" = "服務端";
