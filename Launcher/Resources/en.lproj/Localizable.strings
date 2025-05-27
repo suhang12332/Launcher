@@ -13,8 +13,12 @@
 "menu.sort.newest" = "Newest";
 "menu.sort.updated" = "Updated";
 
+// Toolbar
+"toolbar.translate" = "Translate";
+
 // Sidebar
 "resource" = "Resources";
+"games" = "Games";
 "mod" = "Mods";
 "datapack" = "Data Packs";
 "shader" = "Shaders";
@@ -55,6 +59,21 @@
 "game.form.modloader" = "Mod Loader";
 "game.form.save.error" = "Failed to save game information";
 
+// Download Progress
+"download.core.title" = "Core Files";
+"download.resources.title" = "Resource Files";
+"download.current.file" = "Current File: %@";
+"download.progress" = "%d%%";
+"download.files" = "%d/%d";
+
+// File Names
+"file.client.jar" = "Client JAR";
+"file.library" = "Library: %@";
+"file.native" = "Native: %@";
+"file.asset.index" = "Asset Index";
+"file.logging.config" = "Logging Config";
+"file.asset" = "Asset: %@";
+
 // Settings
 "settings.general" = "General";
 "settings.about" = "About";
@@ -84,8 +103,6 @@
 "filter.environment" = "Environment";
 "filter.behavior" = "Behavior";
 "filter.performance" = "Performance";
-
-
 
 "category.loading" = "Loading %@...";
 

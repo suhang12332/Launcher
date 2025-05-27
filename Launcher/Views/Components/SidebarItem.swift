@@ -1,6 +1,7 @@
 import SwiftUI
 
 public enum SidebarItem: String, CaseIterable, Identifiable {
+    case games
     case mods
     case dataPacks
     case shaders
@@ -11,6 +12,8 @@ public enum SidebarItem: String, CaseIterable, Identifiable {
     
     public var localizedName: String {
         switch self {
+        case .games:
+            return NSLocalizedString("games", comment: "")
         case .mods:
             return NSLocalizedString("mod", comment: "")
         case .dataPacks:
@@ -26,6 +29,8 @@ public enum SidebarItem: String, CaseIterable, Identifiable {
     
     public var icon: String {
         switch self {
+        case .games:
+            return "gamecontroller.fill"
         case .mods:
             return "puzzlepiece.extension"
         case .dataPacks:
@@ -41,6 +46,8 @@ public enum SidebarItem: String, CaseIterable, Identifiable {
     
     public var name: String {
         switch self {
+        case .games:
+            return "games"
         case .mods:
             return "mod"
         case .dataPacks:

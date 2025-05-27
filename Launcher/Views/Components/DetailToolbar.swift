@@ -28,7 +28,8 @@ struct DetailToolbar: View {
     var body: some View {
         sortMenu
         paginationControls
-        
+        Spacer()
+        translateButton
     }
     
     // MARK: - Subviews
@@ -67,6 +68,14 @@ struct DetailToolbar: View {
                 Image(systemName: "chevron.right")
             }
             .disabled(currentPage == totalPages)
+        }
+    }
+    
+    private var translateButton: some View {
+        Button(action: {
+            // TODO: Implement translation functionality
+        }) {
+            Label(NSLocalizedString("toolbar.translate", comment: ""), systemImage: "translate")
         }
     }
 }

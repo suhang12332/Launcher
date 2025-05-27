@@ -13,8 +13,12 @@
 "menu.sort.newest" = "最新";
 "menu.sort.updated" = "最近更新";
 
+// Toolbar
+"toolbar.translate" = "翻译";
+
 // Sidebar
 "resource" = "资源列表";
+"games" = "游戏";
 "mod" = "模组";
 "datapack" = "数据包";
 "shader" = "光影";
@@ -54,6 +58,21 @@
 "game.form.version" = "游戏版本";
 "game.form.modloader" = "mod加载器";
 "game.form.save.error" = "保存游戏信息失败";
+
+// Download Progress
+"download.core.title" = "核心文件下载";
+"download.resources.title" = "资源文件下载";
+"download.current.file" = "当前文件：%@";
+"download.progress" = "%d%%";
+"download.files" = "%d/%d";
+
+// File Names
+"file.client.jar" = "客户端 JAR";
+"file.library" = "库文件：%@";
+"file.native" = "原生库：%@";
+"file.asset.index" = "资源索引";
+"file.logging.config" = "日志配置";
+"file.asset" = "资源文件：%@";
 
 // Settings
 "settings.general" = "通用";

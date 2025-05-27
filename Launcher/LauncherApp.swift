@@ -5,13 +5,17 @@
 //  Created by su on 2025/4/24.
 //
 
-import OSLog
+
 import SwiftUI
 
 @main
 struct LauncherApp: App {
     
     @StateObject private var languageManager = LanguageManager.shared
+    // Create an instance of the GameStorageManager
+    // This instance will be shared throughout the app
+    @StateObject private var gameStorageManager = GameStorageManager()
+    
     init() {
             let savedLanguage = UserDefaults.standard.string(forKey: "selectedLanguage") ?? "zh-Hans"
             Bundle.setLanguage(savedLanguage)
@@ -19,6 +23,9 @@ struct LauncherApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                // Attach the GameStorageManager to the environment
+                // This makes it available to ContentView and all its descendants
+                .environmentObject(gameStorageManager)
         }
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified(showsTitle: false))

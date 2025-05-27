@@ -12,6 +12,8 @@ private enum Constants {
     static let maxHeight: CGFloat = 250
     static let verticalPadding: CGFloat = 4
     static let topPadding: CGFloat = 4
+    static let cacheTimeout: TimeInterval = 300 // 5 minutes cache
+    static let placeholderCount: Int = 5
 }
 
 private enum ProjectType {
@@ -38,22 +40,108 @@ private enum FilterTitle {
     static let performance = "filter.performance"
 }
 
+// MARK: - ViewModel
+@MainActor
+final class CategoryContentViewModel: ObservableObject {
+    @Published private(set) var categories: [Category] = []
+    @Published private(set) var features: [Category] = []
+    @Published private(set) var resolutions: [Category] = []
+    @Published private(set) var performanceImpacts: [Category] = []
+    @Published private(set) var versions: [GameVersion] = []
+    @Published private(set) var isLoading: Bool = true
+    
+    private var lastFetchTime: Date?
+    private let project: String
+    private var loadTask: Task<Void, Never>?
+    
+    init(project: String) {
+        self.project = project
+    }
+    
+    deinit {
+        loadTask?.cancel()
+    }
+    
+    func loadData() async {
+        // Cancel any existing load task
+        loadTask?.cancel()
+        
+        // Check if cache is still valid
+        if let lastFetch = lastFetchTime,
+           Date().timeIntervalSince(lastFetch) < Constants.cacheTimeout,
+           !categories.isEmpty {
+            return
+        }
+        
+        loadTask = Task {
+            isLoading = true
+            do {
+                async let categoriesTask = ModrinthService.fetchCategories()
+                async let versionsTask = ModrinthService.fetchGameVersions()
+                
+                let (categoriesResult, versionsResult) = try await (categoriesTask, versionsTask)
+                
+                // Filter only release versions using version_type
+                let filteredVersions = versionsResult.filter { version in
+                    version.version_type == "release"
+                }
+                
+                let projectType = project == ProjectType.datapack ? ProjectType.mod : project
+                let filteredCategories = categoriesResult.filter { $0.project_type == projectType }
+                
+                // Update all data at once to minimize view updates
+                await MainActor.run {
+                    versions = filteredVersions
+                    categories = filteredCategories.filter { $0.header == CategoryHeader.categories }
+                    features = filteredCategories.filter { $0.header == CategoryHeader.features }
+                    resolutions = filteredCategories.filter { $0.header == CategoryHeader.resolutions }
+                    performanceImpacts = filteredCategories.filter { $0.header == CategoryHeader.performanceImpact }
+                    lastFetchTime = Date()
+                }
+            } catch {
+                Logger.shared.error("加载数据错误: \(error)")
+            }
+            isLoading = false
+        }
+    }
+    
+    func clearCache() {
+        loadTask?.cancel()
+        lastFetchTime = nil
+        categories.removeAll()
+        features.removeAll()
+        resolutions.removeAll()
+        performanceImpacts.removeAll()
+        versions.removeAll()
+    }
+}
+
 // MARK: - CategoryContent
 struct CategoryContent: View {
     // MARK: - Properties
     let project: String
-    @State private var categories: [Category] = []
-    @State private var features: [Category] = []
-    @State private var resolutions: [Category] = []
-    @State private var performanceImpacts: [Category] = []
-    @State private var versions: [GameVersion] = []
-    @State private var isLoading: Bool = true
+    @StateObject private var viewModel: CategoryContentViewModel
     
     @Binding var selectedCategories: [String]
     @Binding var selectedFeatures: [String]
     @Binding var selectedResolutions: [String]
     @Binding var selectedPerformanceImpact: [String]
     @Binding var selectedVersions: [String]
+    
+    init(project: String,
+         selectedCategories: Binding<[String]>,
+         selectedFeatures: Binding<[String]>,
+         selectedResolutions: Binding<[String]>,
+         selectedPerformanceImpact: Binding<[String]>,
+         selectedVersions: Binding<[String]>) {
+        self.project = project
+        self._selectedCategories = selectedCategories
+        self._selectedFeatures = selectedFeatures
+        self._selectedResolutions = selectedResolutions
+        self._selectedPerformanceImpact = selectedPerformanceImpact
+        self._selectedVersions = selectedVersions
+        self._viewModel = StateObject(wrappedValue: CategoryContentViewModel(project: project))
+    }
     
     // MARK: - Body
     var body: some View {
@@ -64,69 +152,26 @@ struct CategoryContent: View {
         }
         .padding(.top, Constants.topPadding)
         .task {
-            await loadData()
+            await viewModel.loadData()
         }
     }
     
     // MARK: - Subviews
     private var gameVersionSection: some View {
-        VStack {
-            versionHeaderView
-            Divider()
-            if isLoading {
-                loadingPlaceholder
-            } else {
-                versionContentView
-            }
-        }
-        .frame(maxHeight: Constants.maxHeight)
-    }
-    
-    private var loadingPlaceholder: some View {
-        ScrollView {
-            FlowLayout {
-                ForEach(0..<5) { _ in
-                    FilterChip(
-                        title: "Loading...",
-                        isSelected: false,
-                        action: {}
-                    )
-                    .redacted(reason: .placeholder)
-                }
-            }
-        }
-        .padding(.vertical, Constants.verticalPadding)
-    }
-    
-    private var versionHeaderView: some View {
-        HStack(alignment: .center) {
-            Text(NSLocalizedString("filter.version", comment: ""))
-                .font(.headline)
-            Spacer()
-        }
-    }
-    
-    private var versionContentView: some View {
-        ScrollView {
-            FlowLayout {
-                ForEach(versions) { version in
-                    FilterChip(
-                        title: version.id,
-                        isSelected: selectedVersions.contains(version.id),
-                        action: { toggleVersionSelection(version.id) }
-                    )
-                }
-            }
-        }
-        .padding(.vertical, Constants.verticalPadding)
+        CategorySectionView(
+            title: "filter.version",
+            items: viewModel.versions.map { FilterItem(id: $0.id, name: $0.id) },
+            selectedItems: $selectedVersions,
+            isLoading: viewModel.isLoading
+        )
     }
     
     private var categorySection: some View {
-        CategorySection(
+        CategorySectionView(
             title: FilterTitle.category,
-            items: categories,
+            items: viewModel.categories.map { FilterItem(id: $0.name, name: $0.name) },
             selectedItems: $selectedCategories,
-            isLoading: isLoading
+            isLoading: viewModel.isLoading
         )
     }
     
@@ -146,104 +191,84 @@ struct CategoryContent: View {
     }
     
     private var environmentSection: some View {
-        CategorySection(
+        CategorySectionView(
             title: FilterTitle.environment,
             items: getEnvironmentItems(),
             selectedItems: $selectedFeatures,
-            isLoading: isLoading
+            isLoading: viewModel.isLoading
         )
     }
     
     private var resourcePackSections: some View {
         Group {
-            CategorySection(
+            CategorySectionView(
                 title: FilterTitle.behavior,
-                items: features,
+                items: viewModel.features.map { FilterItem(id: $0.name, name: $0.name) },
                 selectedItems: $selectedFeatures,
-                isLoading: isLoading
+                isLoading: viewModel.isLoading
             )
-            CategorySection(
+            CategorySectionView(
                 title: FilterTitle.resolutions,
-                items: resolutions,
+                items: viewModel.resolutions.map { FilterItem(id: $0.name, name: $0.name) },
                 selectedItems: $selectedResolutions,
-                isLoading: isLoading
+                isLoading: viewModel.isLoading
             )
         }
     }
     
     private var shaderSections: some View {
         Group {
-            CategorySection(
+            CategorySectionView(
                 title: FilterTitle.behavior,
-                items: features,
+                items: viewModel.features.map { FilterItem(id: $0.name, name: $0.name) },
                 selectedItems: $selectedFeatures,
-                isLoading: isLoading
+                isLoading: viewModel.isLoading
             )
-            CategorySection(
+            CategorySectionView(
                 title: FilterTitle.performance,
-                items: performanceImpacts,
+                items: viewModel.performanceImpacts.map { FilterItem(id: $0.name, name: $0.name) },
                 selectedItems: $selectedPerformanceImpact,
-                isLoading: isLoading
+                isLoading: viewModel.isLoading
             )
         }
     }
     
     // MARK: - Methods
-    private func loadData() async {
-        isLoading = true
-        do {
-            async let categoriesTask = ModrinthService.fetchCategories()
-            async let versionsTask = ModrinthService.fetchGameVersions()
-            
-            let (categoriesResult, versionsResult) = try await (categoriesTask, versionsTask)
-            
-            versions = versionsResult
-            let projectType = project == ProjectType.datapack ? ProjectType.mod : project
-            let filteredCategories = categoriesResult.filter { $0.project_type == projectType }
-            
-            categories = filteredCategories.filter { $0.header == CategoryHeader.categories }
-            features = filteredCategories.filter { $0.header == CategoryHeader.features }
-            resolutions = filteredCategories.filter { $0.header == CategoryHeader.resolutions }
-            performanceImpacts = filteredCategories.filter { $0.header == CategoryHeader.performanceImpact }
-        } catch {
-            Logger.shared.error("加载数据错误: \(error)")
-        }
-        isLoading = false
-    }
-    
-    private func getEnvironmentItems() -> [Category] {
+    private func getEnvironmentItems() -> [FilterItem] {
         [
-            Category(name: "client", icon: "", project_type: project, header: CategoryHeader.environment),
-            Category(name: "server", icon: "", project_type: project, header: CategoryHeader.environment)
+            FilterItem(id: "client", name: NSLocalizedString("environment.client", comment: "")),
+            FilterItem(id: "server", name: NSLocalizedString("environment.server", comment: ""))
         ]
     }
+}
+
+// MARK: - Supporting Types
+struct FilterItem: Identifiable, Equatable {
+    let id: String
+    let name: String
     
-    private func toggleVersionSelection(_ versionId: String) {
-        if selectedVersions.contains(versionId) {
-            selectedVersions.removeAll { $0 == versionId }
-        } else {
-            selectedVersions.append(versionId)
-        }
+    static func == (lhs: FilterItem, rhs: FilterItem) -> Bool {
+        lhs.id == rhs.id
     }
 }
 
 // MARK: - Category Section View
-private struct CategorySection: View {
+private struct CategorySectionView: View {
     // MARK: - Properties
     let title: String
-    let items: [Category]
+    let items: [FilterItem]
     @Binding var selectedItems: [String]
     let isLoading: Bool
     
     // MARK: - Body
     var body: some View {
-        VStack {
+            VStack {
             headerView
             Divider()
             if isLoading {
                 loadingPlaceholder
             } else {
-                contentView
+            contentView
             }
         }
         .frame(maxHeight: Constants.maxHeight)
@@ -251,17 +276,34 @@ private struct CategorySection: View {
     
     // MARK: - Subviews
     private var headerView: some View {
-        HStack(alignment: .center) {
+                HStack(alignment: .center) {
+            HStack(spacing: 4) {
             Text(NSLocalizedString(title, comment: ""))
-                .font(.headline)
-            Spacer()
+                        .font(.headline)
+                if !selectedItems.isEmpty {
+                    Text("(\(selectedItems.count))")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+            }
+                    Spacer()
+            if !selectedItems.isEmpty {
+                Button(action: {
+                    selectedItems.removeAll()
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help(NSLocalizedString("filter.clear", comment: ""))
+            }
         }
     }
     
     private var loadingPlaceholder: some View {
         ScrollView {
             FlowLayout {
-                ForEach(0..<5) { _ in
+                ForEach(0..<Constants.placeholderCount, id: \.self) { _ in
                     FilterChip(
                         title: "Loading...",
                         isSelected: false,
@@ -275,40 +317,26 @@ private struct CategorySection: View {
     }
     
     private var contentView: some View {
-        ScrollView {
-            FlowLayout {
+                    ScrollView {
+                        FlowLayout {
                 ForEach(items) { item in
-                    FilterChip(
-                        title: getLocalizedName(for: item.name),
-                        isSelected: selectedItems.contains(item.name),
-                        action: { toggleSelection(item.name) }
-                    )
-                }
-            }
-        }
+                                FilterChip(
+                        title: item.name,
+                        isSelected: selectedItems.contains(item.id),
+                        action: { toggleSelection(item.id) }
+                                )
+                            }
+                        }
+                    }
         .padding(.vertical, Constants.verticalPadding)
-    }
+                }
     
     // MARK: - Methods
-    private func toggleSelection(_ name: String) {
-        if selectedItems.contains(name) {
-            selectedItems.removeAll { $0 == name }
+    private func toggleSelection(_ id: String) {
+        if selectedItems.contains(id) {
+            selectedItems.removeAll { $0 == id }
         } else {
-            selectedItems.append(name)
+            selectedItems.append(id)
         }
-    }
-    
-    private func getLocalizedName(for name: String) -> String {
-        if title == FilterTitle.environment {
-            switch name {
-            case "client":
-                return NSLocalizedString("environment.client", comment: "")
-            case "server":
-                return NSLocalizedString("environment.server", comment: "")
-            default:
-                return name
-            }
-        }
-        return name
     }
 }

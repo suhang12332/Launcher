@@ -10,7 +10,7 @@ import SwiftUI
 struct ModrinthContentView: View {
     @Binding var selectedVersion: [String]
     @Binding var selectedLicense: [String]
-    @Binding var selectedItem: SidebarItem
+    let selectedItem: SidebarItem
     @Binding var selectedCategories: [String]
     @Binding var selectedFeatures: [String]
     @Binding var selectedResolutions: [String]
@@ -18,18 +18,18 @@ struct ModrinthContentView: View {
     @State private var refreshID = UUID()
     
     var body: some View {
-        List {
-            Section {
-                CategoryContent(
-                    project: selectedItem.name,
-                    selectedCategories: $selectedCategories,
-                    selectedFeatures: $selectedFeatures,
-                    selectedResolutions: $selectedResolutions,
-                    selectedPerformanceImpact: $selectedPerformanceImpact,
-                    selectedVersions: $selectedVersion
-                )
-            }
-            .id(refreshID)
+                List {
+                    Section {
+                        CategoryContent(
+                            project: selectedItem.name,
+                            selectedCategories: $selectedCategories,
+                            selectedFeatures: $selectedFeatures,
+                            selectedResolutions: $selectedResolutions,
+                            selectedPerformanceImpact: $selectedPerformanceImpact,
+                            selectedVersions: $selectedVersion
+                        )
+                    }
+                    .id(refreshID)
         }
         .onChange(of: selectedItem) { _, _ in
             refreshID = UUID()
