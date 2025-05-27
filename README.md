@@ -20,6 +20,9 @@
 - 🎨 支持 Mod、资源包和光影
 - 🌐 多语言支持（英文、简体中文、繁体中文）
 - 🎯 原生 macOS 体验
+- 📦 自动下载和管理游戏文件
+- 🔄 实时下载进度显示
+- 🛠 支持模组管理
 
 ## 系统要求
 
@@ -38,13 +41,20 @@
 git clone https://github.com/suhang12332/Launcher.git
 ```
 
-2. 打开项目：
+2. 安装依赖：
+```bash
+brew install swiftlint
+```
+
+3. 打开项目：
 ```bash
 cd Launcher
 open Launcher.xcodeproj
 ```
 
-3. 在 Xcode 中构建和运行项目
+4. 在 Xcode 中构建和运行项目：
+- 在 Xcode 中选择目标设备
+- 点击运行按钮或使用快捷键 `Cmd + R`
 
 ## 功能模块
 
@@ -112,6 +122,11 @@ Launcher/
 ## 开源协议
 
 本项目采用 MIT 协议 - 查看 [LICENSE](LICENSE) 文件了解更多详情。
+
+## 联系方式
+
+- 项目维护者：su
+- GitHub：[@suhang12332](https://github.com/suhang12332)
 
 <!-- ## 致谢
 
