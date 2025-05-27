@@ -1,39 +1,90 @@
 import SwiftUI
 import UniformTypeIdentifiers
-import OSLog
+
+// MARK: - Download State
+class DownloadState: ObservableObject {
+    @Published var isDownloading = false
+    @Published var coreProgress: Double = 0
+    @Published var resourcesProgress: Double = 0
+    @Published var currentCoreFile: String = ""
+    @Published var currentResourceFile: String = ""
+    @Published var coreTotalFiles: Int = 0
+    @Published var resourcesTotalFiles: Int = 0
+    @Published var coreCompletedFiles: Int = 0
+    @Published var resourcesCompletedFiles: Int = 0
+    @Published var isCancelled = false
+    
+    func reset() {
+        isDownloading = false
+        coreProgress = 0
+        resourcesProgress = 0
+        currentCoreFile = ""
+        currentResourceFile = ""
+        coreTotalFiles = 0
+        resourcesTotalFiles = 0
+        coreCompletedFiles = 0
+        resourcesCompletedFiles = 0
+        isCancelled = false
+    }
+    
+    func startDownload(coreTotalFiles: Int, resourcesTotalFiles: Int) {
+        self.coreTotalFiles = coreTotalFiles
+        self.resourcesTotalFiles = resourcesTotalFiles
+        self.isDownloading = true
+        self.coreProgress = 0
+        self.resourcesProgress = 0
+        self.coreCompletedFiles = 0
+        self.resourcesCompletedFiles = 0
+        self.isCancelled = false
+    }
+    
+    func cancel() {
+        isCancelled = true
+    }
+    
+    func updateProgress(fileName: String, completed: Int, total: Int, type: MinecraftFileManager.DownloadType) {
+        switch type {
+        case .core:
+            self.currentCoreFile = fileName
+            self.coreCompletedFiles = completed
+            self.coreTotalFiles = total
+            self.coreProgress = Double(completed) / Double(total)
+        case .resources:
+            self.currentResourceFile = fileName
+            self.resourcesCompletedFiles = completed
+            self.resourcesTotalFiles = total
+            self.resourcesProgress = Double(completed) / Double(total)
+        }
+    }
+}
 
 // MARK: - Constants
 private enum Constants {
     static let formSpacing: CGFloat = 16
     static let iconSize: CGFloat = 64
     static let cornerRadius: CGFloat = 8
-    
-    static let gameVersions = ["1.20.1", "1.19.4", "1.18.2"]
-    static let modLoaders = ["Forge", "Fabric", "Quilt"]
-    
-    static let defaultIcon = "default_game_icon"
+    static let maxImageSize: CGFloat = 1024
+    static let defaultAppName = "YourLauncherApp"
 }
 
 // MARK: - GameFormView
 struct GameFormView: View {
-    // MARK: - Properties
+    @EnvironmentObject var gameStorageManager: GameStorageManager
     @Environment(\.dismiss) private var dismiss
-    @State private var gameName: String = ""
-    @State private var gameIcon: String = Constants.defaultIcon
-    @State private var iconImage: Image? = nil
+    
+    // MARK: - State
+    @StateObject private var downloadState = DownloadState()
+    @State private var gameName = ""
+    @State private var gameIcon = AppConstants.defaultGameIcon
+    @State private var iconImage: Image?
     @State private var showImagePicker = false
     @State private var showError = false
     @State private var errorMessage = ""
+    @State private var selectedGameVersion = ""
+    @State private var selectedModLoader = AppConstants.modLoaders.first ?? ""
+    @State private var mojangVersions: [MojangVersionInfo] = []
+    @State private var isLoadingVersions = true
     
-    @State private var selectedGameVersion: String
-    @State private var selectedModLoader: String
-    
-    // MARK: - Initialization
-    init() {
-        _selectedGameVersion = State(initialValue: Constants.gameVersions.first ?? "")
-        _selectedModLoader = State(initialValue: Constants.modLoaders.first ?? "")
-    }
-
     // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
@@ -55,28 +106,34 @@ struct GameFormView: View {
         } message: {
             Text(errorMessage)
         }
+        .task {
+            await loadVersions()
+        }
     }
     
     // MARK: - View Components
     private var headerView: some View {
-            HStack {
-                Text(NSLocalizedString("game.form.title", comment: "添加游戏"))
-                    .font(.headline)
+        HStack {
+            Text(NSLocalizedString("game.form.title", comment: "添加游戏"))
+                .font(.headline)
                 .padding(Constants.formSpacing)
-                Spacer()
-            }
+            Spacer()
+        }
     }
     
     private var formContentView: some View {
         VStack(spacing: Constants.formSpacing) {
             gameIconAndVersionSection
             gameNameSection
+            if downloadState.isDownloading {
+                downloadProgressSection
+            }
         }
         .padding(Constants.formSpacing)
     }
     
     private var gameIconAndVersionSection: some View {
-                FormSection {
+        FormSection {
             HStack(alignment: .top, spacing: Constants.formSpacing) {
                 gameIconView
                 gameVersionAndLoaderView
@@ -85,12 +142,12 @@ struct GameFormView: View {
     }
     
     private var gameIconView: some View {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(NSLocalizedString("game.form.icon", comment: "游戏图标"))
-                                .font(.subheadline)
-                                .foregroundColor(.primary)
-                            
-                            ZStack {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(NSLocalizedString("game.form.icon", comment: "游戏图标"))
+                .font(.subheadline)
+                .foregroundColor(.primary)
+            
+            ZStack {
                 if let iconImage = iconImage {
                     iconImage
                         .resizable()
@@ -101,23 +158,23 @@ struct GameFormView: View {
                         .contentShape(Rectangle())
                 } else {
                     RoundedRectangle(cornerRadius: Constants.cornerRadius)
-                                    .stroke(Color.accentColor.opacity(0.3), lineWidth: 1)
-                                    .background(Color.gray.opacity(0.08))
-                            }
+                        .stroke(Color.accentColor.opacity(0.3), lineWidth: 1)
+                        .background(Color.gray.opacity(0.08))
+                }
             }
             .frame(width: Constants.iconSize, height: Constants.iconSize)
             .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius))
-                            .onTapGesture {
-                                showImagePicker = true
-                            }
-                            .onDrop(of: [UTType.image.identifier], isTargeted: nil) { providers in
+            .onTapGesture {
+                showImagePicker = true
+            }
+            .onDrop(of: [UTType.image.identifier], isTargeted: nil) { providers in
                 handleImageDrop(providers)
-                            }
-                            
-                            Text(NSLocalizedString("game.form.icon.description", comment: "为游戏选择图标"))
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
+            }
+            
+            Text(NSLocalizedString("game.form.icon.description", comment: "为游戏选择图标"))
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
     }
     
     private var gameVersionAndLoaderView: some View {
@@ -128,64 +185,158 @@ struct GameFormView: View {
     }
     
     private var versionPicker: some View {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text(NSLocalizedString("game.form.version", comment: "游戏版本"))
-                                    .font(.subheadline)
-                                    .foregroundColor(.primary)
-                                Picker("", selection: $selectedGameVersion) {
-                ForEach(Constants.gameVersions, id: \.self) { version in
-                                        Text(version).tag(version)
-                                    }
-                                }
-                                .pickerStyle(MenuPickerStyle())
-                            }
+        VStack(alignment: .leading, spacing: 8) {
+            Text(NSLocalizedString("game.form.version", comment: "游戏版本"))
+                .font(.subheadline)
+                .foregroundColor(.primary)
+            if isLoadingVersions {
+                ProgressView()
+                    .controlSize(.small)
+            } else {
+                Picker("", selection: $selectedGameVersion) {
+                    ForEach(mojangVersions, id: \.id) {
+                        Text($0.id).tag($0.id)
+                    }
+                }
+                .pickerStyle(MenuPickerStyle())
+            }
+        }
     }
     
     private var modLoaderPicker: some View {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text(NSLocalizedString("game.form.modloader", comment: "mod加载器"))
-                                    .font(.subheadline)
-                                    .foregroundColor(.primary)
-                                Picker("", selection: $selectedModLoader) {
-                ForEach(Constants.modLoaders, id: \.self) { loader in
-                                        Text(loader).tag(loader)
-                                    }
-                                }
-                                .pickerStyle(MenuPickerStyle())
-                    }
+        VStack(alignment: .leading, spacing: 8) {
+            Text(NSLocalizedString("game.form.modloader", comment: "mod加载器"))
+                .font(.subheadline)
+                .foregroundColor(.primary)
+            Picker("", selection: $selectedModLoader) {
+                ForEach(AppConstants.modLoaders, id: \.self) {
+                    Text($0).tag($0)
                 }
-                
+            }
+            .pickerStyle(MenuPickerStyle())
+        }
+    }
+    
     private var gameNameSection: some View {
-                FormSection {
-                    FormInputField(
-                        title: NSLocalizedString("game.form.name", comment: "游戏名称"),
-                        placeholder: NSLocalizedString("game.form.name.placeholder", comment: "请输入游戏名称"),
-                        text: $gameName
-                    )
+        FormSection {
+            FormInputField(
+                title: NSLocalizedString("game.form.name", comment: "游戏名称"),
+                placeholder: NSLocalizedString("game.form.name.placeholder", comment: "请输入游戏名称"),
+                text: $gameName
+            )
+        }
+    }
+    
+    private var downloadProgressSection: some View {
+        VStack(spacing: Constants.formSpacing) {
+            // Core files download progress
+            FormSection {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text(NSLocalizedString("download.core.title", comment: "Core Files"))
+                            .font(.headline)
+                        Spacer()
+                        Text(String(format: NSLocalizedString("download.progress", comment: "%d%%"), Int(downloadState.coreProgress * 100)))
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    ProgressView(value: downloadState.coreProgress)
+                    
+                    HStack {
+                        Text(String(format: NSLocalizedString("download.current.file", comment: "Current File: %@"), downloadState.currentCoreFile))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text(String(format: NSLocalizedString("download.files", comment: "%d/%d"), downloadState.coreCompletedFiles, downloadState.coreTotalFiles))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                 }
             }
             
+            // Resources download progress
+            FormSection {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text(NSLocalizedString("download.resources.title", comment: "Resource Files"))
+                            .font(.headline)
+                        Spacer()
+                        Text(String(format: NSLocalizedString("download.progress", comment: "%d%%"), Int(downloadState.resourcesProgress * 100)))
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    ProgressView(value: downloadState.resourcesProgress)
+                    
+                    HStack {
+                        Text(String(format: NSLocalizedString("download.current.file", comment: "Current File: %@"), downloadState.currentResourceFile))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text(String(format: NSLocalizedString("download.files", comment: "%d/%d"), downloadState.resourcesCompletedFiles, downloadState.resourcesTotalFiles))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+        }
+    }
+    
     private var footerView: some View {
-            HStack(spacing: 12) {
-                Spacer()
-                Button(NSLocalizedString("common.cancel", comment: "取消")) {
+        HStack(spacing: 12) {
+            Spacer()
+            Button(NSLocalizedString("common.cancel", comment: "取消")) {
+                if downloadState.isDownloading {
+                    downloadState.cancel()
+                } else {
                     dismiss()
                 }
-                .keyboardShortcut(.cancelAction)
-                
+            }
+            .keyboardShortcut(.cancelAction)
+            
+            if downloadState.isDownloading {
+                ProgressView()
+                    .controlSize(.small)
+                    .frame(width: 60)
+            } else {
                 Button(NSLocalizedString("common.confirm", comment: "确认")) {
-                    saveGame()
+                    Task {
+                        await saveGame()
+                    }
                 }
                 .keyboardShortcut(.defaultAction)
                 .disabled(!isFormValid)
             }
-            .padding(.vertical, 20)
-        .padding(.trailing, Constants.formSpacing)
         }
+        .padding(.vertical, 20)
+        .padding(.trailing, Constants.formSpacing)
+    }
     
     // MARK: - Helper Methods
     private var isFormValid: Bool {
         !gameName.isEmpty
+    }
+    
+    private func loadVersions() async {
+        isLoadingVersions = true
+        do {
+            let mojangManifest = try await MinecraftService.fetchVersionManifest()
+            let releaseVersions = mojangManifest.versions.filter { $0.type == "release" }
+            
+            await MainActor.run {
+                self.mojangVersions = releaseVersions
+                if let firstVersion = releaseVersions.first {
+                    self.selectedGameVersion = firstVersion.id
+                }
+                self.isLoadingVersions = false
+            }
+        } catch {
+            await MainActor.run {
+                showError(message: "加载数据失败: \(error.localizedDescription)")
+                self.isLoadingVersions = false
+            }
+        }
     }
     
     private func handleImagePickerResult(_ result: Result<[URL], Error>) {
@@ -196,15 +347,12 @@ struct GameFormView: View {
                 return
             }
             
-            // 开始访问文件
             guard url.startAccessingSecurityScopedResource() else {
                 showError(message: "无法访问所选文件")
                 return
             }
             
-            defer {
-                url.stopAccessingSecurityScopedResource()
-            }
+            defer { url.stopAccessingSecurityScopedResource() }
             
             do {
                 let data = try Data(contentsOf: url)
@@ -232,12 +380,12 @@ struct GameFormView: View {
                 
                 if let data = data {
                     DispatchQueue.main.async {
-                    setIconImage(from: data)
-                }
+                        setIconImage(from: data)
+                    }
                 }
             }
             return true
-            }
+        }
         return false
     }
     
@@ -247,21 +395,17 @@ struct GameFormView: View {
             return
         }
         
-        // 验证图片数据
         guard !data.isEmpty else {
             showError(message: "图片数据为空")
             return
         }
         
-        // 验证图片尺寸
-        let maxSize: CGFloat = 1024
         let imageSize = nsImage.size
-        if imageSize.width > maxSize || imageSize.height > maxSize {
+        if imageSize.width > Constants.maxImageSize || imageSize.height > Constants.maxImageSize {
             showError(message: "图片尺寸过大，请选择小于 1024x1024 的图片")
             return
         }
         
-        // 创建图片
         iconImage = Image(nsImage: nsImage)
         gameIcon = "data:image/png;base64," + data.base64EncodedString()
     }
@@ -271,7 +415,7 @@ struct GameFormView: View {
         showError = true
     }
     
-    private func saveGame() {
+    private func saveGame() async {
         let gameInfo = GameVersionInfo(
             gameName: gameName,
             gameIcon: gameIcon,
@@ -281,7 +425,74 @@ struct GameFormView: View {
         )
         
         Logger.shared.info("保存游戏信息：\(gameInfo.gameName) (版本: \(gameInfo.gameVersion))")
-        dismiss()
+        
+        guard let mojangVersion = mojangVersions.first(where: { $0.id == selectedGameVersion }) else {
+            Logger.shared.warning("Could not find Mojang version info for selected version: \(selectedGameVersion)")
+            await MainActor.run {
+                showError(message: "找不到对应版本的下载信息")
+            }
+            return
+        }
+        
+        do {
+            let manifestData = try await URLSession.shared.data(from: mojangVersion.url).0
+            let downloadedManifest = try JSONDecoder().decode(MinecraftVersionManifest.self, from: manifestData)
+            
+            guard let applicationSupportDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+                Logger.shared.error("Could not find Application Support directory.")
+                await MainActor.run {
+                    showError(message: "无法找到应用程序支持目录")
+                }
+                return
+            }
+            
+            let appName = Bundle.main.infoDictionary?["CFBundleName"] as? String ?? Constants.defaultAppName
+            let launcherSupportDirectory = applicationSupportDirectory.appendingPathComponent(appName)
+            let metaDirectory = launcherSupportDirectory.appendingPathComponent("meta")
+            let profileDirectoryName = "\(downloadedManifest.id)-\(selectedModLoader)"
+            let profileDirectory = launcherSupportDirectory.appendingPathComponent("profiles").appendingPathComponent(profileDirectoryName)
+            
+            let fileManager = MinecraftFileManager(metaDirectory: metaDirectory, profileDirectory: profileDirectory)
+            
+            // Start download with combined progress tracking
+            await MainActor.run {
+                downloadState.startDownload(
+                    coreTotalFiles: 1 + downloadedManifest.libraries.count + 1,
+                    resourcesTotalFiles: 0 // Will be updated when asset index is parsed
+                )
+            }
+            
+            fileManager.onProgressUpdate = { fileName, completed, total, type in
+                Task { @MainActor in
+                    if downloadState.isCancelled {
+                        throw MinecraftFileManagerError.requestFailed(URLError(.cancelled))
+                    }
+                    downloadState.updateProgress(fileName: fileName, completed: completed, total: total, type: type)
+                }
+            }
+            
+            // Download all files (core files and assets) concurrently
+            try await fileManager.downloadVersionFiles(manifest: downloadedManifest)
+            
+            // Add the game to storage
+            gameStorageManager.addGame(gameInfo)
+            
+            // Dismiss the view
+            await MainActor.run {
+                dismiss()
+            }
+            
+        } catch {
+            Logger.shared.error("Error saving game or downloading files: \(error)")
+            await MainActor.run {
+                if downloadState.isCancelled {
+                    showError(message: "下载已取消")
+                } else {
+                    showError(message: "保存游戏或下载文件失败: \(error.localizedDescription)")
+                }
+                downloadState.reset()
+            }
+        }
     }
 }
 
