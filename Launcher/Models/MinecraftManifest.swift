@@ -28,18 +28,26 @@ struct Arguments: Codable {
 enum ArgumentValue: Codable {
     case string(String)
     case objectWithRules(ArgumentRuleObject)
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         if let stringValue = try? container.decode(String.self) {
             self = .string(stringValue)
-        } else if let objectValue = try? container.decode(ArgumentRuleObject.self) {
+        } else if let objectValue = try? container.decode(
+            ArgumentRuleObject.self
+        ) {
             self = .objectWithRules(objectValue)
         } else {
-            throw DecodingError.typeMismatch(ArgumentValue.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Expected String or ArgumentRuleObject"))
+            throw DecodingError.typeMismatch(
+                ArgumentValue.self,
+                DecodingError.Context(
+                    codingPath: decoder.codingPath,
+                    debugDescription: "Expected String or ArgumentRuleObject"
+                )
+            )
         }
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
@@ -61,7 +69,7 @@ struct ArgumentRuleObject: Codable {
 enum ArgumentValueArrayOrString: Codable {
     case string(String)
     case array([String])
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         if let stringValue = try? container.decode(String.self) {
@@ -69,10 +77,16 @@ enum ArgumentValueArrayOrString: Codable {
         } else if let arrayValue = try? container.decode([String].self) {
             self = .array(arrayValue)
         } else {
-            throw DecodingError.typeMismatch(ArgumentValueArrayOrString.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Expected String or [String]"))
+            throw DecodingError.typeMismatch(
+                ArgumentValueArrayOrString.self,
+                DecodingError.Context(
+                    codingPath: decoder.codingPath,
+                    debugDescription: "Expected String or [String]"
+                )
+            )
         }
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
@@ -99,9 +113,9 @@ struct Features: Codable {
     let is_quick_play_singleplayer: Bool?
     let is_quick_play_multiplayer: Bool?
     let is_quick_play_realms: Bool?
-    
+
     // Handle potential missing keys during decoding
-     enum CodingKeys: String, CodingKey {
+    enum CodingKeys: String, CodingKey {
         case is_demo_user
         case has_custom_resolution
         case has_quick_plays_support
@@ -112,12 +126,30 @@ struct Features: Codable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        is_demo_user = try container.decodeIfPresent(Bool.self, forKey: .is_demo_user)
-        has_custom_resolution = try container.decodeIfPresent(Bool.self, forKey: .has_custom_resolution)
-        has_quick_plays_support = try container.decodeIfPresent(Bool.self, forKey: .has_quick_plays_support)
-        is_quick_play_singleplayer = try container.decodeIfPresent(Bool.self, forKey: .is_quick_play_singleplayer)
-        is_quick_play_multiplayer = try container.decodeIfPresent(Bool.self, forKey: .is_quick_play_multiplayer)
-        is_quick_play_realms = try container.decodeIfPresent(Bool.self, forKey: .is_quick_play_realms)
+        is_demo_user = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .is_demo_user
+        )
+        has_custom_resolution = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .has_custom_resolution
+        )
+        has_quick_plays_support = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .has_quick_plays_support
+        )
+        is_quick_play_singleplayer = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .is_quick_play_singleplayer
+        )
+        is_quick_play_multiplayer = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .is_quick_play_multiplayer
+        )
+        is_quick_play_realms = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .is_quick_play_realms
+        )
     }
 }
 
@@ -126,9 +158,9 @@ struct OS: Codable {
     let name: String?
     let version: String?
     let arch: String?
-     
-     // Handle potential missing keys during decoding
-     enum CodingKeys: String, CodingKey {
+
+    // Handle potential missing keys during decoding
+    enum CodingKeys: String, CodingKey {
         case name, version, arch
     }
 
@@ -147,11 +179,11 @@ struct AssetIndex: Codable {
     let size: Int
     let totalSize: Int
     let url: URL
-    
+
     enum CodingKeys: String, CodingKey {
         case id, sha1, size, totalSize, url
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(String.self, forKey: .id)
@@ -160,11 +192,15 @@ struct AssetIndex: Codable {
         totalSize = try container.decode(Int.self, forKey: .totalSize)
         let urlString = try container.decode(String.self, forKey: .url)
         guard let url = URL(string: urlString) else {
-            throw DecodingError.dataCorruptedError(forKey: .url, in: container, debugDescription: "Invalid URL string.")
+            throw DecodingError.dataCorruptedError(
+                forKey: .url,
+                in: container,
+                debugDescription: "Invalid URL string."
+            )
         }
         self.url = url
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
@@ -181,9 +217,9 @@ struct Downloads: Codable {
     let client_mappings: DownloadInfo?
     let server: DownloadInfo?
     let server_mappings: DownloadInfo?
-    
-     // Handle potential missing keys during decoding
-     enum CodingKeys: String, CodingKey {
+
+    // Handle potential missing keys during decoding
+    enum CodingKeys: String, CodingKey {
         case client
         case client_mappings
         case server
@@ -193,9 +229,18 @@ struct Downloads: Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         client = try container.decode(DownloadInfo.self, forKey: .client)
-        client_mappings = try container.decodeIfPresent(DownloadInfo.self, forKey: .client_mappings)
-        server = try container.decodeIfPresent(DownloadInfo.self, forKey: .server)
-        server_mappings = try container.decodeIfPresent(DownloadInfo.self, forKey: .server_mappings)
+        client_mappings = try container.decodeIfPresent(
+            DownloadInfo.self,
+            forKey: .client_mappings
+        )
+        server = try container.decodeIfPresent(
+            DownloadInfo.self,
+            forKey: .server
+        )
+        server_mappings = try container.decodeIfPresent(
+            DownloadInfo.self,
+            forKey: .server_mappings
+        )
     }
 }
 
@@ -204,22 +249,26 @@ struct DownloadInfo: Codable {
     let sha1: String
     let size: Int
     let url: URL
-    
+
     enum CodingKeys: String, CodingKey {
         case sha1, size, url
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         sha1 = try container.decode(String.self, forKey: .sha1)
         size = try container.decode(Int.self, forKey: .size)
         let urlString = try container.decode(String.self, forKey: .url)
         guard let url = URL(string: urlString) else {
-            throw DecodingError.dataCorruptedError(forKey: .url, in: container, debugDescription: "Invalid URL string.")
+            throw DecodingError.dataCorruptedError(
+                forKey: .url,
+                in: container,
+                debugDescription: "Invalid URL string."
+            )
         }
         self.url = url
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(sha1, forKey: .sha1)
@@ -233,34 +282,50 @@ struct Library: Codable {
     let downloads: LibraryDownloads?
     let name: String
     let rules: [Rule]?
-    let natives: [String: String]? // Dictionary for native library paths per OS
+    let natives: [String: String]?  // Dictionary for native library paths per OS
     let extract: LibraryExtract?
-    let url: URL? // Some libraries might have a direct URL
-    
-     // Handle potential missing keys during decoding
-     enum CodingKeys: String, CodingKey {
+    let url: URL?  // Some libraries might have a direct URL
+
+    // Handle potential missing keys during decoding
+    enum CodingKeys: String, CodingKey {
         case downloads, name, rules, natives, extract, url
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        downloads = try container.decodeIfPresent(LibraryDownloads.self, forKey: .downloads)
+        downloads = try container.decodeIfPresent(
+            LibraryDownloads.self,
+            forKey: .downloads
+        )
         name = try container.decode(String.self, forKey: .name)
         rules = try container.decodeIfPresent([Rule].self, forKey: .rules)
-        natives = try container.decodeIfPresent([String: String].self, forKey: .natives)
-        extract = try container.decodeIfPresent(LibraryExtract.self, forKey: .extract)
-        
+        natives = try container.decodeIfPresent(
+            [String: String].self,
+            forKey: .natives
+        )
+        extract = try container.decodeIfPresent(
+            LibraryExtract.self,
+            forKey: .extract
+        )
+
         // Custom decoding for URL to handle optionality and string conversion
-        if let urlString = try container.decodeIfPresent(String.self, forKey: .url) {
+        if let urlString = try container.decodeIfPresent(
+            String.self,
+            forKey: .url
+        ) {
             guard let url = URL(string: urlString) else {
-                 throw DecodingError.dataCorruptedError(forKey: .url, in: container, debugDescription: "Invalid URL string.")
+                throw DecodingError.dataCorruptedError(
+                    forKey: .url,
+                    in: container,
+                    debugDescription: "Invalid URL string."
+                )
             }
             self.url = url
         } else {
             self.url = nil
         }
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(downloads, forKey: .downloads)
@@ -275,17 +340,23 @@ struct Library: Codable {
 // Library Downloads structure
 struct LibraryDownloads: Codable {
     let artifact: LibraryArtifact?
-    let classifiers: [String: LibraryArtifact]? // For native libraries
-    
-     // Handle potential missing keys during decoding
-     enum CodingKeys: String, CodingKey {
+    let classifiers: [String: LibraryArtifact]?  // For native libraries
+
+    // Handle potential missing keys during decoding
+    enum CodingKeys: String, CodingKey {
         case artifact, classifiers
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        artifact = try container.decodeIfPresent(LibraryArtifact.self, forKey: .artifact)
-        classifiers = try container.decodeIfPresent([String: LibraryArtifact].self, forKey: .classifiers)
+        artifact = try container.decodeIfPresent(
+            LibraryArtifact.self,
+            forKey: .artifact
+        )
+        classifiers = try container.decodeIfPresent(
+            [String: LibraryArtifact].self,
+            forKey: .classifiers
+        )
     }
 }
 
@@ -295,11 +366,11 @@ struct LibraryArtifact: Codable {
     let sha1: String
     let size: Int
     let url: URL
-    
+
     enum CodingKeys: String, CodingKey {
         case path, sha1, size, url
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         path = try container.decode(String.self, forKey: .path)
@@ -307,11 +378,15 @@ struct LibraryArtifact: Codable {
         size = try container.decode(Int.self, forKey: .size)
         let urlString = try container.decode(String.self, forKey: .url)
         guard let url = URL(string: urlString) else {
-            throw DecodingError.dataCorruptedError(forKey: .url, in: container, debugDescription: "Invalid URL string.")
+            throw DecodingError.dataCorruptedError(
+                forKey: .url,
+                in: container,
+                debugDescription: "Invalid URL string."
+            )
         }
         self.url = url
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(path, forKey: .path)
@@ -344,11 +419,11 @@ struct LoggingFile: Codable {
     let sha1: String
     let size: Int
     let url: URL
-    
+
     enum CodingKeys: String, CodingKey {
         case id, sha1, size, url
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(String.self, forKey: .id)
@@ -356,11 +431,15 @@ struct LoggingFile: Codable {
         size = try container.decode(Int.self, forKey: .size)
         let urlString = try container.decode(String.self, forKey: .url)
         guard let url = URL(string: urlString) else {
-            throw DecodingError.dataCorruptedError(forKey: .url, in: container, debugDescription: "Invalid URL string.")
+            throw DecodingError.dataCorruptedError(
+                forKey: .url,
+                in: container,
+                debugDescription: "Invalid URL string."
+            )
         }
         self.url = url
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
@@ -374,7 +453,7 @@ struct LoggingFile: Codable {
 struct JavaVersion: Codable {
     let component: String
     let majorVersion: Int
-    
+
     enum CodingKeys: String, CodingKey {
         case component
         case majorVersion
@@ -393,31 +472,35 @@ struct LatestVersions: Codable {
 }
 
 struct MojangVersionInfo: Codable, Identifiable {
-    let id: String // Version ID (e.g., "1.20.1")
-    let type: String // e.g., "release", "snapshot"
-    let url: URL // URL to the version-specific manifest
+    let id: String  // Version ID (e.g., "1.20.1")
+    let type: String  // e.g., "release", "snapshot"
+    let url: URL  // URL to the version-specific manifest
     let time: String
     let releaseTime: String
-    
+
     // Custom decoding for URL to handle string conversion
     enum CodingKeys: String, CodingKey {
         case id, type, url, time, releaseTime
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(String.self, forKey: .id)
         type = try container.decode(String.self, forKey: .type)
         time = try container.decode(String.self, forKey: .time)
         releaseTime = try container.decode(String.self, forKey: .releaseTime)
-        
+
         let urlString = try container.decode(String.self, forKey: .url)
         guard let url = URL(string: urlString) else {
-            throw DecodingError.dataCorruptedError(forKey: .url, in: container, debugDescription: "Invalid URL string for MojangVersionInfo.")
+            throw DecodingError.dataCorruptedError(
+                forKey: .url,
+                in: container,
+                debugDescription: "Invalid URL string for MojangVersionInfo."
+            )
         }
         self.url = url
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
@@ -426,4 +509,4 @@ struct MojangVersionInfo: Codable, Identifiable {
         try container.encode(releaseTime, forKey: .releaseTime)
         try container.encode(url.absoluteString, forKey: .url)
     }
-} 
+}

@@ -3,37 +3,96 @@ import os.log
 
 struct Logger {
     static let shared = Logger()
-    private let logger = OSLog(subsystem: Bundle.main.bundleIdentifier ?? "com.launcher", category: "Launcher")
-    
+    private let logger = OSLog(
+        subsystem: Bundle.main.bundleIdentifier ?? "com.launcher",
+        category: "Launcher"
+    )
+
     private init() {}
-    
+
     // MARK: - Public Logging Methods
 
-    func debug(_ items: Any..., file: String = #file, function: String = #function, line: Int = #line) {
-        log(items, type: .debug, prefix: "🔍", file: file, function: function, line: line)
+    func debug(
+        _ items: Any...,
+        file: String = #file,
+        function: String = #function,
+        line: Int = #line
+    ) {
+        log(
+            items,
+            type: .debug,
+            prefix: "🔍",
+            file: file,
+            function: function,
+            line: line
+        )
     }
-    
-    func info(_ items: Any..., file: String = #file, function: String = #function, line: Int = #line) {
-        log(items, type: .info, prefix: "ℹ️", file: file, function: function, line: line)
+
+    func info(
+        _ items: Any...,
+        file: String = #file,
+        function: String = #function,
+        line: Int = #line
+    ) {
+        log(
+            items,
+            type: .info,
+            prefix: "ℹ️",
+            file: file,
+            function: function,
+            line: line
+        )
     }
-    
-    func warning(_ items: Any..., file: String = #file, function: String = #function, line: Int = #line) {
-        log(items, type: .default, prefix: "⚠️", file: file, function: function, line: line)
+
+    func warning(
+        _ items: Any...,
+        file: String = #file,
+        function: String = #function,
+        line: Int = #line
+    ) {
+        log(
+            items,
+            type: .default,
+            prefix: "⚠️",
+            file: file,
+            function: function,
+            line: line
+        )
     }
-    
-    func error(_ items: Any..., file: String = #file, function: String = #function, line: Int = #line) {
-        log(items, type: .error, prefix: "❌", file: file, function: function, line: line)
+
+    func error(
+        _ items: Any...,
+        file: String = #file,
+        function: String = #function,
+        line: Int = #line
+    ) {
+        log(
+            items,
+            type: .error,
+            prefix: "❌",
+            file: file,
+            function: function,
+            line: line
+        )
     }
-    
+
     // MARK: - Core Logging
 
-    private func log(_ items: [Any], type: OSLogType, prefix: String, file: String, function: String, line: Int) {
+    private func log(
+        _ items: [Any],
+        type: OSLogType,
+        prefix: String,
+        file: String,
+        function: String,
+        line: Int
+    ) {
         let fileName = (file as NSString).lastPathComponent
         let message = items.map { Logger.stringify($0) }.joined(separator: " ")
-        let logMessage = "\(prefix) [\(fileName):\(line)] \(function): \(message)"
+        let logMessage =
+            "\(prefix) [\(fileName):\(line)] \(function): \(message)"
         os_log("%{public}@", log: logger, type: type, logMessage)
     }
-    
+
     // MARK: - Stringify Helper
 
     static func stringify(_ value: Any) -> String {
@@ -51,14 +110,18 @@ struct Logger {
         case let data as Data:
             return String(data: data, encoding: .utf8) ?? "<Data>"
         case let array as [Any]:
-            return "[" + array.map { stringify($0) }.joined(separator: ", ") + "]"
+            return "[" + array.map { stringify($0) }.joined(separator: ", ")
+                + "]"
         case let dict as [String: Any]:
-            return dict.map { "\($0): \(stringify($1))" }.joined(separator: ", ")
+            return dict.map { "\($0): \(stringify($1))" }.joined(
+                separator: ", "
+            )
         case let codable as Encodable:
             let encoder = JSONEncoder()
             encoder.outputFormatting = .prettyPrinted
             if let data = try? encoder.encode(AnyEncodable(codable)),
-               let json = String(data: data, encoding: .utf8) {
+                let json = String(data: data, encoding: .utf8)
+            {
                 return json
             }
             return "\(codable)"
@@ -77,4 +140,4 @@ private struct AnyEncodable: Encodable {
     func encode(to encoder: Encoder) throws {
         try _encode(encoder)
     }
-} 
+}

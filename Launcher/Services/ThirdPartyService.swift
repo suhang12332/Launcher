@@ -12,7 +12,9 @@ enum ThirdPartyService {
     }
 
     static func checkUpdate() async throws -> UpdateInfo {
-        let (data, _) = try await URLSession.shared.data(from: URLConfig.API.ThirdParty.updateCheck)
+        let (data, _) = try await URLSession.shared.data(
+            from: URLConfig.API.ThirdParty.updateCheck
+        )
         return try JSONDecoder().decode(UpdateInfo.self, from: data)
     }
-} 
+}

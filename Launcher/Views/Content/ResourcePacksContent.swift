@@ -10,4 +10,4 @@ struct ResourcePacksContent: View {
 
 #Preview {
     ResourcePacksContent()
-} 
+}

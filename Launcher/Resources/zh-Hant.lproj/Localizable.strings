@@ -66,6 +66,10 @@
 "download.progress" = "%d%%";
 "download.files" = "%d/%d";
 
+// Notification
+"notification.download.complete.title" = "下載完成";
+"notification.download.complete.body" = "%@ (版本: %@, 加載器: %@) 已成功下載。";
+
 // File Names
 "file.client.jar" = "客戶端 JAR";
 "file.library" = "庫文件：%@";
@@ -98,7 +102,6 @@
 "filter.version.icon" = "🎮遊戲版本";
 "filter.version" = "遊戲版本";
 "filter.category" = "分類";
-"filter.features" = "特性";
 "filter.resolutions" = "分辨率";
 "filter.environment" = "環境";
 "filter.behavior" = "行為";

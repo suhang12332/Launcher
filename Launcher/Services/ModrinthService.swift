@@ -59,7 +59,7 @@ enum ModrinthService {
         )
         return try JSONDecoder().decode([License].self, from: data)
     }
-    
+
     static func fetchGameVersions() async throws -> [GameVersion] {
         let (data, _) = try await URLSession.shared.data(
             from: URLConfig.API.Modrinth.Tag.gameVersion

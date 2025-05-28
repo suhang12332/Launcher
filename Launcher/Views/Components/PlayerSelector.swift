@@ -19,7 +19,11 @@ struct PlayerSelector: View {
                             playerService.selectPlayer(by: player.id)
                             showPopover = false
                         } label: {
-                            PlayerAvatarView(player: player, size: 28,cornerRadius: 7)
+                            PlayerAvatarView(
+                                player: player,
+                                size: 28,
+                                cornerRadius: 7
+                            )
                             Text(player.name)
                         }
                         .buttonStyle(.plain)
@@ -31,7 +35,12 @@ struct PlayerSelector: View {
                             showDeleteAlert = true
                         } label: {
                             Image(systemName: "person.badge.minus")
-                                .help(NSLocalizedString("player.remove", comment: ""))
+                                .help(
+                                    NSLocalizedString(
+                                        "player.remove",
+                                        comment: "移除玩家"
+                                    )
+                                )
                         }
                         .buttonStyle(.borderless)
                     }
@@ -43,15 +52,29 @@ struct PlayerSelector: View {
         }
         .alert(isPresented: $showDeleteAlert) {
             Alert(
-                title: Text(NSLocalizedString("player.remove", comment: "")),
-                message: Text(String(format: NSLocalizedString("player.remove.confirm", comment: "Are you sure you want to remove %@?"), playerToDelete?.name ?? "")),
-                primaryButton: .destructive(Text(NSLocalizedString("player.remove", comment: ""))) {
+                title: Text(
+                    NSLocalizedString("player.remove", comment: "移除玩家")
+                ),
+                message: Text(
+                    String(
+                        format: NSLocalizedString(
+                            "player.remove.confirm",
+                            comment: "确定要移除 %@ 吗？"
+                        ),
+                        playerToDelete?.name ?? ""
+                    )
+                ),
+                primaryButton: .destructive(
+                    Text(NSLocalizedString("player.remove", comment: "移除玩家"))
+                ) {
                     if let player = playerToDelete {
                         playerService.removePlayer(by: player.id)
                     }
                     playerToDelete = nil
                 },
-                secondaryButton: .cancel(Text(NSLocalizedString("player.add.cancel", comment: ""))) {
+                secondaryButton: .cancel(
+                    Text(NSLocalizedString("player.add.cancel", comment: "取消"))
+                ) {
                     playerToDelete = nil
                 }
             )
@@ -65,7 +88,11 @@ private struct PlayerSelectorLabel: View {
     var body: some View {
         if let selectedPlayer = selectedPlayer {
             HStack(spacing: 6) {
-                PlayerAvatarView(player: selectedPlayer, size: 22,cornerRadius: 5)
+                PlayerAvatarView(
+                    player: selectedPlayer,
+                    size: 22,
+                    cornerRadius: 5
+                )
                 Text(selectedPlayer.name)
                     .foregroundColor(.primary)
                     .font(.system(size: 13))
@@ -92,9 +119,11 @@ private struct PlayerAvatarView: View {
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
             .task {
                 if !hasLoggedLoad {
-                    Logger.shared.debug("Trying to load player image: \(player.avatarName)")
+                    Logger.shared.debug(
+                        "Trying to load player image: \(player.avatarName)"
+                    )
                     hasLoggedLoad = true
                 }
             }
     }
-} 
+}

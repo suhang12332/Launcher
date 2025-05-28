@@ -43,7 +43,9 @@ final class PlayerService: ObservableObject {
         var newPlayer = player
         newPlayer.isCurrent = true
         repository.add(newPlayer)
-        Logger.shared.info("添加新玩家：\(newPlayer.name) (id: \(newPlayer.id)) 并设为当前用户")
+        Logger.shared.info(
+            "添加新玩家：\(newPlayer.name) (id: \(newPlayer.id)) 并设为当前用户"
+        )
         fetchPlayers()
     }
 
@@ -54,13 +56,17 @@ final class PlayerService: ObservableObject {
             updatedPrev.isCurrent = false
             updatedPrev.lastPlayed = Date()
             repository.update(updatedPrev)
-            Logger.shared.info("上一个玩家 \(updatedPrev.name) (id: \(updatedPrev.id)) 取消选中并更新时间")
+            Logger.shared.info(
+                "上一个玩家 \(updatedPrev.name) (id: \(updatedPrev.id)) 取消选中并更新时间"
+            )
         }
         if let target = allPlayers.first(where: { $0.id == id }) {
             var updatedTarget = target
             updatedTarget.isCurrent = true
             repository.update(updatedTarget)
-            Logger.shared.info("切换当前玩家为：\(updatedTarget.name) (id: \(updatedTarget.id))")
+            Logger.shared.info(
+                "切换当前玩家为：\(updatedTarget.name) (id: \(updatedTarget.id))"
+            )
         }
         fetchPlayers()
     }
@@ -73,7 +79,8 @@ final class PlayerService: ObservableObject {
 
     func removePlayer(by id: String) {
         let allPlayers = repository.fetchAll()
-        let isCurrent = allPlayers.first(where: { $0.id == id })?.isCurrent ?? false
+        let isCurrent =
+            allPlayers.first(where: { $0.id == id })?.isCurrent ?? false
         repository.delete(playerId: id)
         Logger.shared.info("删除玩家 (id: \(id))")
         if isCurrent, var first = repository.fetchAll().first {
@@ -87,4 +94,4 @@ final class PlayerService: ObservableObject {
     func getAllPlayers() -> [Player] {
         return repository.fetchAll()
     }
-} 
+}

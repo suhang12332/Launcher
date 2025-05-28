@@ -5,7 +5,7 @@ struct ToolbarContentView<Content: View, ToolbarContent: View>: View {
     let showDivider: Bool
     let content: Content
     let toolbarContent: ToolbarContent
-    
+
     init(
         title: String,
         showDivider: Bool = true,
@@ -17,7 +17,7 @@ struct ToolbarContentView<Content: View, ToolbarContent: View>: View {
         self.content = content()
         self.toolbarContent = toolbarContent()
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             content
@@ -30,4 +30,3 @@ struct ToolbarContentView<Content: View, ToolbarContent: View>: View {
         }
     }
 }
-

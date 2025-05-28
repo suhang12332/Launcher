@@ -66,6 +66,10 @@
 "download.progress" = "%d%%";
 "download.files" = "%d/%d";
 
+// Notification
+"notification.download.complete.title" = "Download Complete";
+"notification.download.complete.body" = "%@ (Version: %@, Loader: %@) successfully downloaded.";
+
 // File Names
 "file.client.jar" = "Client JAR";
 "file.library" = "Library: %@";

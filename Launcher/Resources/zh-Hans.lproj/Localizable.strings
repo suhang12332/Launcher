@@ -66,6 +66,10 @@
 "download.progress" = "%d%%";
 "download.files" = "%d/%d";
 
+// Notification
+"notification.download.complete.title" = "下载完成";
+"notification.download.complete.body" = "%@ (版本: %@, 加载器: %@) 已成功下载。";
+
 // File Names
 "file.client.jar" = "客户端 JAR";
 "file.library" = "库文件：%@";

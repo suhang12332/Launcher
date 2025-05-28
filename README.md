@@ -11,6 +11,8 @@
 - **资源管理**：支持资源包和光影的管理，让玩家轻松定制游戏体验。
 - **自动更新**：支持 Minecraft 版本和启动器的自动更新，确保玩家始终使用最新版本。
 - **原生体验**：专为 macOS 设计，充分利用 macOS 的特性，提供最佳的用户体验。
+- **性能优化**：针对 Apple Silicon 和 Intel 处理器进行优化，提供最佳性能。
+- **安全可靠**：内置安全检查机制，确保游戏文件完整性。
 
 ## 功能特性
 
@@ -23,16 +25,25 @@
 - 📦 自动下载和管理游戏文件
 - 🔄 实时下载进度显示
 - 🛠 支持模组管理
+- 🔒 游戏文件完整性检查
+- ⚡️ 性能优化
+- 🎨 自定义主题支持
+- 📊 游戏统计和性能监控
+- 🔍 快速搜索和过滤功能
 
 ## 系统要求
 
 - macOS 13.0 或更高版本
 - Apple Silicon 或 Intel 处理器
+- 至少 4GB 可用内存
+- 至少 2GB 可用磁盘空间
 
 ## 开发环境
 
 - Xcode 15.0 或更高版本
 - Swift 5.9 或更高版本
+- SwiftLint 用于代码规范检查
+- Git 用于版本控制
 
 ## 安装说明
 
@@ -62,21 +73,35 @@ open Launcher.xcodeproj
 - 支持所有官方版本
 - 自动下载和安装
 - 版本隔离
+- 版本回滚支持
+- 快照版本支持
 
 ### 玩家管理
 - 多账户支持
 - 皮肤预览
 - 账户切换
+- 离线模式支持
+- 账户数据备份
 
 ### Mod 管理
 - 支持 Modrinth
 - 自动依赖处理
 - 版本兼容性检查
+- Mod 配置管理
+- 批量操作支持
 
 ### 资源管理
 - 资源包管理
 - 光影包管理
 - 数据包管理
+- 资源预览
+- 资源分类
+
+### 性能优化
+- 内存使用优化
+- 启动速度优化
+- 资源加载优化
+- 后台任务管理
 
 ## Project Structure
 
@@ -128,7 +153,9 @@ Launcher/
 - 项目维护者：su
 - GitHub：[@suhang12332](https://github.com/suhang12332)
 
-<!-- ## 致谢
+## 致谢
 
 - [Modrinth](https://modrinth.com/) - Mod 平台支持
-- [Mojang](https://www.mojang.com/) - Minecraft 官方支持 -->
+- [Mojang](https://www.mojang.com/) - Minecraft 官方支持
+- [SwiftUI](https://developer.apple.com/xcode/swiftui/) - UI 框架
+- [SwiftLint](https://github.com/realm/SwiftLint) - 代码规范检查工具

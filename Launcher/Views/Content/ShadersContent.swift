@@ -10,4 +10,4 @@ struct ShadersContent: View {
 
 #Preview {
     ShadersContent()
-} 
+}

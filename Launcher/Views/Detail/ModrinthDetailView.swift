@@ -37,23 +37,29 @@ final class ModrinthSearchViewModel: ObservableObject {
     @Published private(set) var isLoading = false
     @Published private(set) var error: Error?
     @Published private(set) var totalHits: Int = 0
-    
+
     let pageSize: Int = Constants.pageSize
     private var searchTask: Task<Void, Never>?
 
-    func search(projectType: String, page: Int = 1, sortIndex: String,
-                versions: [String] = [], categories: [String] = [],
-                features: [String] = [], resolutions: [String] = [],
-                performanceImpact: [String] = []) async {
+    func search(
+        projectType: String,
+        page: Int = 1,
+        sortIndex: String,
+        versions: [String] = [],
+        categories: [String] = [],
+        features: [String] = [],
+        resolutions: [String] = [],
+        performanceImpact: [String] = []
+    ) async {
         // Cancel any existing search task
         searchTask?.cancel()
-        
+
         searchTask = Task {
-        isLoading = true
-        error = nil
-            
-        do {
-            let offset = (page - 1) * pageSize
+            isLoading = true
+            error = nil
+
+            do {
+                let offset = (page - 1) * pageSize
                 let facets = buildFacets(
                     projectType: projectType,
                     versions: versions,
@@ -62,31 +68,31 @@ final class ModrinthSearchViewModel: ObservableObject {
                     resolutions: resolutions,
                     performanceImpact: performanceImpact
                 )
-                
-            let result = try await ModrinthService.searchProjects(
+
+                let result = try await ModrinthService.searchProjects(
                     facets: facets,
-                index: sortIndex,
-                offset: offset,
-                limit: pageSize
-            )
-                
+                    index: sortIndex,
+                    offset: offset,
+                    limit: pageSize
+                )
+
                 if !Task.isCancelled {
-            results = result.hits
-            totalHits = result.totalHits
+                    results = result.hits
+                    totalHits = result.totalHits
                 }
-        } catch {
+            } catch {
                 if !Task.isCancelled {
-            Logger.shared.error("Modrinth search error: \(error)")
-            self.error = error
-        }
+                    Logger.shared.error("Modrinth search error: \(error)")
+                    self.error = error
+                }
             }
-            
+
             if !Task.isCancelled {
-        isLoading = false
+                isLoading = false
+            }
+        }
     }
-}
-    }
-    
+
     private func buildFacets(
         projectType: String,
         versions: [String],
@@ -96,78 +102,84 @@ final class ModrinthSearchViewModel: ObservableObject {
         performanceImpact: [String]
     ) -> [[String]] {
         var facets: [[String]] = []
-        
+
         // Project type is always required
         facets.append(["\(FacetType.projectType):\(projectType)"])
-        
+
         // Add versions if any
         if !versions.isEmpty {
             facets.append(versions.map { "\(FacetType.versions):\($0)" })
         }
-        
+
         // Add categories if any
         if !categories.isEmpty {
             facets.append(categories.map { "\(FacetType.categories):\($0)" })
         }
-        
+
         // Handle client_side and server_side based on features selection
-        let (clientFacets, serverFacets) = buildEnvironmentFacets(features: features)
+        let (clientFacets, serverFacets) = buildEnvironmentFacets(
+            features: features
+        )
         if !clientFacets.isEmpty {
             facets.append(clientFacets)
         }
         if !serverFacets.isEmpty {
             facets.append(serverFacets)
         }
-        
+
         // Add resolutions if any
         if !resolutions.isEmpty {
             facets.append(resolutions.map { "\(FacetType.resolutions):\($0)" })
         }
-        
+
         // Add performance impact if any
         if !performanceImpact.isEmpty {
-            facets.append(performanceImpact.map { "\(FacetType.performanceImpact):\($0)" })
+            facets.append(
+                performanceImpact.map { "\(FacetType.performanceImpact):\($0)" }
+            )
         }
-        
+
         return facets
     }
-    
-    private func buildEnvironmentFacets(features: [String]) -> (clientFacets: [String], serverFacets: [String]) {
+
+    private func buildEnvironmentFacets(features: [String]) -> (
+        clientFacets: [String], serverFacets: [String]
+    ) {
         let hasClient = features.contains("client")
         let hasServer = features.contains("server")
-        
+
         let clientFacets: [String]
         let serverFacets: [String]
-        
+
         if hasClient && hasServer {
             clientFacets = ["\(FacetType.clientSide):\(FacetValue.required)"]
             serverFacets = ["\(FacetType.serverSide):\(FacetValue.required)"]
         } else if hasClient {
             clientFacets = [
                 "\(FacetType.clientSide):\(FacetValue.optional)",
-                "\(FacetType.clientSide):\(FacetValue.required)"
+                "\(FacetType.clientSide):\(FacetValue.required)",
             ]
             serverFacets = [
                 "\(FacetType.serverSide):\(FacetValue.optional)",
-                "\(FacetType.serverSide):\(FacetValue.unsupported)"
+                "\(FacetType.serverSide):\(FacetValue.unsupported)",
             ]
         } else if hasServer {
             clientFacets = [
                 "\(FacetType.clientSide):\(FacetValue.optional)",
-                "\(FacetType.clientSide):\(FacetValue.unsupported)"
+                "\(FacetType.clientSide):\(FacetValue.unsupported)",
             ]
             serverFacets = [
                 "\(FacetType.serverSide):\(FacetValue.optional)",
-                "\(FacetType.serverSide):\(FacetValue.required)"
+                "\(FacetType.serverSide):\(FacetValue.required)",
             ]
         } else {
             clientFacets = []
             serverFacets = []
         }
-        
+
         return (clientFacets, serverFacets)
     }
-    
+
     deinit {
         searchTask?.cancel()
     }
@@ -250,7 +262,7 @@ struct ModrinthDetailView: View {
             await performSearch()
         }
     }
-    
+
     // MARK: - Private Methods
     private func performSearch() async {
         await viewModel.search(
@@ -263,24 +275,41 @@ struct ModrinthDetailView: View {
             resolutions: selectedResolutions,
             performanceImpact: selectedPerformanceImpact
         )
-        }
-    
+    }
+
     // MARK: - View Components
     private var loadingView: some View {
         VStack(spacing: 8) {
             ProgressView()
                 .controlSize(.regular)
                 .frame(width: 20, height: 20)
-            Text(String(format: NSLocalizedString("game.version.loading", comment: ""), NSLocalizedString(query, comment: "")))
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+            Text(
+                String(
+                    format: NSLocalizedString(
+                        "game.version.loading",
+                        comment: "正在加载 %@ 版本"
+                    ),
+                    NSLocalizedString(query, comment: "游戏版本")
+                )
+            )
+            .font(.subheadline)
+            .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func errorView(_ error: Error) -> some View {
         ContentUnavailableView {
-            Label(String(format: NSLocalizedString("modrinth.search.error", comment: ""), NSLocalizedString(query, comment: "")), systemImage: "xmark.icloud")
+            Label(
+                String(
+                    format: NSLocalizedString(
+                        "modrinth.search.error",
+                        comment: "搜索 %@ 时出错"
+                    ),
+                    NSLocalizedString(query, comment: "游戏版本")
+                ),
+                systemImage: "xmark.icloud"
+            )
         } description: {
             Text(localizedErrorMessage(error))
         }
@@ -288,9 +317,12 @@ struct ModrinthDetailView: View {
 
     private var emptyView: some View {
         ContentUnavailableView {
-            Label(NSLocalizedString("common.error", comment: ""), systemImage: "tray")
+            Label(
+                NSLocalizedString("common.error", comment: "错误"),
+                systemImage: "tray"
+            )
         } description: {
-            Text(NSLocalizedString("No results found.", comment: ""))
+            Text(NSLocalizedString("No results found.", comment: "未找到结果"))
         }
     }
 
@@ -299,7 +331,9 @@ struct ModrinthDetailView: View {
             ForEach(viewModel.results, id: \.projectId) { mod in
                 ModrinthProjectCardView(mod: mod)
                     .padding(.vertical, Constants.verticalPadding)
-                    .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
+                    .listRowInsets(
+                        EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8)
+                    )
             }
         }
         .listStyle(.plain)
@@ -341,8 +375,8 @@ struct ModrinthProjectCardView: View {
                     case .failure:
                         Color.gray.opacity(0.2)
                     @unknown default:
-                    Color.gray.opacity(0.2)
-                }
+                        Color.gray.opacity(0.2)
+                    }
                 }
                 .frame(width: Constants.iconSize, height: Constants.iconSize)
                 .cornerRadius(Constants.cornerRadius)
@@ -350,7 +384,10 @@ struct ModrinthProjectCardView: View {
                 .id(url)
             } else {
                 Color.gray.opacity(0.2)
-                    .frame(width: Constants.iconSize, height: Constants.iconSize)
+                    .frame(
+                        width: Constants.iconSize,
+                        height: Constants.iconSize
+                    )
                     .cornerRadius(Constants.cornerRadius)
             }
         }
@@ -367,7 +404,7 @@ struct ModrinthProjectCardView: View {
                 .lineLimit(1)
         }
     }
-    
+
     private var descriptionView: some View {
         Text(mod.description)
             .font(.subheadline)
@@ -377,7 +414,10 @@ struct ModrinthProjectCardView: View {
 
     private var tagsView: some View {
         HStack(spacing: Constants.spacing) {
-            ForEach(Array(mod.displayCategories.prefix(Constants.maxTags)), id: \.self) { tag in
+            ForEach(
+                Array(mod.displayCategories.prefix(Constants.maxTags)),
+                id: \.self
+            ) { tag in
                 Text(tag)
                     .font(.caption2)
                     .padding(.horizontal, Constants.tagHorizontalPadding)
@@ -400,32 +440,32 @@ struct ModrinthProjectCardView: View {
             addButton
         }
     }
-    
+
     private var downloadInfoView: some View {
-            HStack(spacing: 2) {
-                Image(systemName: "arrow.down.circle")
+        HStack(spacing: 2) {
+            Image(systemName: "arrow.down.circle")
                 .imageScale(.small)
             Text("\(Self.formatNumber(mod.downloads))")
-            }
+        }
         .font(.caption2)
         .foregroundColor(.secondary)
     }
-    
+
     private var followerInfoView: some View {
-            HStack(spacing: 2) {
-                Image(systemName: "heart")
+        HStack(spacing: 2) {
+            Image(systemName: "heart")
                 .imageScale(.small)
             Text("\(Self.formatNumber(mod.follows))")
-            }
+        }
         .font(.caption2)
         .foregroundColor(.secondary)
     }
-    
+
     private var addButton: some View {
         Button("+ Add") {
             // TODO: Implement add to instance functionality
-            }
-            .buttonStyle(.borderedProminent)
+        }
+        .buttonStyle(.borderedProminent)
         .font(.caption2)
         .controlSize(.small)
     }

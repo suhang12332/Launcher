@@ -12,13 +12,20 @@ struct LicenseContent: View {
     @State private var licenses: [License] = []
     @State private var isLoading = true
     @State private var error: Error?
-        
+
     var body: some View {
         HStack {
             if isLoading {
                 ProgressView {
-                    Text(String(format: NSLocalizedString("game.version.loading", comment: ""),
-                                NSLocalizedString("filter.version", comment: "")))
+                    Text(
+                        String(
+                            format: NSLocalizedString(
+                                "game.version.loading",
+                                comment: "正在加载 %@ 版本"
+                            ),
+                            NSLocalizedString("filter.version", comment: "版本筛选")
+                        )
+                    )
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.vertical, 8)
@@ -28,10 +35,14 @@ struct LicenseContent: View {
                         ForEach(licenses) { license in
                             FilterChip(
                                 title: license.short,
-                                isSelected: selectedLicense.contains(license.short),
+                                isSelected: selectedLicense.contains(
+                                    license.short
+                                ),
                                 action: {
                                     if selectedLicense.contains(license.short) {
-                                        selectedLicense.removeAll { $0 == license.short }
+                                        selectedLicense.removeAll {
+                                            $0 == license.short
+                                        }
                                     } else {
                                         selectedLicense.append(license.short)
                                     }
@@ -58,6 +69,3 @@ struct LicenseContent: View {
         }
     }
 }
-
-
-

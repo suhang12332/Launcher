@@ -94,7 +94,7 @@ struct ModrinthResult: Codable {
         case hits, offset, limit
         case totalHits = "total_hits"
     }
-} 
+}
 
 // 游戏版本
 struct GameVersion: Codable, Identifiable {
@@ -102,7 +102,7 @@ struct GameVersion: Codable, Identifiable {
     let version_type: String
     let date: String
     let major: Bool
-    
+
     var id: String { version }
 }
 
@@ -111,7 +111,7 @@ struct Loader: Codable, Identifiable {
     let name: String
     let icon: String
     let supported_project_types: [String]
-    
+
     var id: String { name }
 }
 
@@ -121,7 +121,7 @@ struct Category: Codable, Identifiable {
     let icon: String
     let project_type: String
     let header: String
-    
+
     var id: String { name }
 }
 

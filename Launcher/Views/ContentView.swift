@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject var gameStorageManager: GameStorageManager
-    
+    @EnvironmentObject var gameRepository: GameRepository
+
     @State private var selectedItem: SidebarSelection? = .resource(.mods)
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @State private var showingAddPlayer = false
@@ -19,7 +19,7 @@ struct ContentView: View {
     @State private var selectedFeatures: [String] = []
     @State private var selectedResolutions: [String] = []
     @State private var selectedPerformanceImpact: [String] = []
-    
+
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             SidebarView(selection: $selectedItem)
@@ -32,9 +32,17 @@ struct ContentView: View {
                         Text("Selected Game ID: \(gameId)")
                         // TODO: Integrate your actual Game Detail View here
                     }
-                    .navigationTitle(NSLocalizedString("game.details", comment: ""))
+                    .navigationTitle(
+                        NSLocalizedString("game.details", comment: "游戏详情")
+                    )
                 case .resource(let item):
-                    ToolbarContentView(title: NSLocalizedString("game.version.title", comment: ""), showDivider: false) {
+                    ToolbarContentView(
+                        title: NSLocalizedString(
+                            "game.version.title",
+                            comment: "游戏版本"
+                        ),
+                        showDivider: false
+                    ) {
                         ModrinthDetailView(
                             query: item.name,
                             currentPage: $currentPage,
@@ -45,7 +53,8 @@ struct ContentView: View {
                             selectedCategories: $selectedCategories,
                             selectedFeatures: $selectedFeatures,
                             selectedResolutions: $selectedResolutions,
-                            selectedPerformanceImpact: $selectedPerformanceImpact
+                            selectedPerformanceImpact:
+                                $selectedPerformanceImpact
                         )
                     } toolbarContent: {
                         DetailToolbar(
@@ -62,7 +71,12 @@ struct ContentView: View {
             }
         } detail: {
             if case .resource(let item) = selectedItem {
-                ToolbarContentView(title: NSLocalizedString("sidebar.resources", comment: "")) {
+                ToolbarContentView(
+                    title: NSLocalizedString(
+                        "sidebar.resources",
+                        comment: "资源管理"
+                    )
+                ) {
                     ModrinthContentView(
                         selectedVersion: $selectedVersions,
                         selectedLicense: $selectedLicenses,
@@ -96,6 +110,6 @@ struct ContentView: View {
     }
 }
 
-#Preview{
+#Preview {
     ContentView()
 }

@@ -1,8 +1,5 @@
 import Foundation
-// Removed import CryptoKit
-// import CryptoKit
 import CommonCrypto
-import UserNotifications // Import UserNotifications for notifications
 
 // MARK: - Minecraft Types
 struct MinecraftLibrary {
@@ -83,6 +80,12 @@ private enum Constants {
         "assets/indexes",
         "assets/objects"
     ]
+    static let maxConcurrentDownloads = 8
+    static let assetChunkSize = 50
+    static let downloadTimeout: TimeInterval = 30
+    static let retryCount = 3
+    static let retryDelay: TimeInterval = 2
+    static let memoryBufferSize = 1024 * 1024 // 1MB buffer for file operations
 }
 
 // MARK: - MinecraftFileManager
@@ -94,6 +97,10 @@ class MinecraftFileManager {
     private let resourceFilesCount = NSLockingCounter()
     private var coreTotalFiles = 0
     private var resourceTotalFiles = 0
+    private let downloadQueue = DispatchQueue(label: "com.launcher.download", qos: .userInitiated)
+    private let fileManager = FileManager.default
+    private let session: URLSession
+    
     var onProgressUpdate: ((String, Int, Int, DownloadType) -> Void)?
     
     enum DownloadType {
@@ -105,86 +112,74 @@ class MinecraftFileManager {
     init(metaDirectory: URL, profileDirectory: URL) {
         self.metaDirectory = metaDirectory
         self.profileDirectory = profileDirectory
+        
+        let config = URLSessionConfiguration.ephemeral
+        config.timeoutIntervalForRequest = Constants.downloadTimeout
+        config.timeoutIntervalForResource = Constants.downloadTimeout
+        config.httpMaximumConnectionsPerHost = Constants.maxConcurrentDownloads
+        config.requestCachePolicy = .reloadIgnoringLocalCacheData
+        self.session = URLSession(configuration: config)
     }
     
     // MARK: - Public Methods
     func downloadVersionFiles(manifest: MinecraftVersionManifest) async throws {
         Logger.shared.info("Starting download for Minecraft version: \(manifest.id)")
         
-        do {
-            try createDirectories(manifestId: manifest.id)
+        try createDirectories(manifestId: manifest.id)
+        
+        // Use bounded task groups to limit concurrency
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            group.addTask { [weak self] in
+                try await self?.downloadCoreFiles(manifest: manifest)
+            }
+            group.addTask { [weak self] in
+                try await self?.downloadAssets(manifest: manifest)
+            }
             
-            // Start both core files and assets download concurrently
-            async let coreFilesDownload = downloadCoreFiles(manifest: manifest)
-            async let assetsDownload = downloadAssets(manifest: manifest)
-            
-            // Wait for both to complete
-            _ = try await [coreFilesDownload, assetsDownload]
-            
-            Logger.shared.info("Finished downloading files for Minecraft version: \(manifest.id)")
-        } catch {
-            Logger.shared.error("Error during file download for version \(manifest.id): \(error)")
-            throw error
+            try await group.waitForAll()
         }
-    }
-    
-    func downloadAssets(manifest: MinecraftVersionManifest) async throws {
-        Logger.shared.info("Starting asset downloads for Minecraft version: \(manifest.id)")
         
-        // Download and parse asset index
-        let assetIndex = try await downloadAssetIndex(manifest: manifest)
-        
-        // Update total files count for progress tracking
-        resourceTotalFiles = assetIndex.objects.count
-        
-        // Download all assets with increased concurrency
-        try await downloadAllAssets(assetIndex: assetIndex)
-        
-        Logger.shared.info("Finished downloading assets for Minecraft version: \(manifest.id)")
+        Logger.shared.info("Finished downloading files for Minecraft version: \(manifest.id)")
     }
     
     // MARK: - Private Methods
     private func calculateTotalFiles(_ manifest: MinecraftVersionManifest) -> Int {
-        1 + // Client JAR
-        manifest.libraries.count + // Libraries
-        1 + // Asset index
-        (manifest.logging.client.file != nil ? 1 : 0) // Logging config
+        1 + manifest.libraries.count + 1 + 1 // Client JAR + Libraries + Asset index + Logging config
     }
     
     private func createDirectories(manifestId: String) throws {
-        let fileManager = FileManager.default
+        // Create all directories in one pass
+        let directoriesToCreate = Constants.metaSubdirectories.map {
+            metaDirectory.appendingPathComponent($0)
+        } + [
+            metaDirectory.appendingPathComponent("versions").appendingPathComponent(manifestId),
+            profileDirectory
+        ]
         
-        // Create meta directories
-        for subdirectory in Constants.metaSubdirectories {
-            let directory = metaDirectory.appendingPathComponent(subdirectory)
+        for directory in directoriesToCreate {
             if !fileManager.fileExists(atPath: directory.path) {
-                try fileManager.createDirectory(at: directory, withIntermediateDirectories: true, attributes: nil)
+                try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
                 Logger.shared.debug("Created directory: \(directory.path)")
             }
-        }
-        
-        // Create version-specific directory
-        let versionDir = metaDirectory.appendingPathComponent("versions").appendingPathComponent(manifestId)
-        if !fileManager.fileExists(atPath: versionDir.path) {
-            try fileManager.createDirectory(at: versionDir, withIntermediateDirectories: true, attributes: nil)
-            Logger.shared.debug("Created directory: \(versionDir.path)")
-        }
-        
-        // Create profile directory
-        if !fileManager.fileExists(atPath: profileDirectory.path) {
-            try fileManager.createDirectory(at: profileDirectory, withIntermediateDirectories: true, attributes: nil)
-            Logger.shared.debug("Created directory: \(profileDirectory.path)")
         }
     }
     
     private func downloadCoreFiles(manifest: MinecraftVersionManifest) async throws {
         coreTotalFiles = calculateTotalFiles(manifest)
         
-        async let clientJarDownload = downloadClientJar(manifest: manifest)
-        async let librariesDownload = downloadLibraries(manifest: manifest)
-        async let loggingConfigDownload = downloadLoggingConfig(manifest: manifest)
-        
-        _ = try await [clientJarDownload, librariesDownload, loggingConfigDownload]
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            group.addTask { [weak self] in
+                try await self?.downloadClientJar(manifest: manifest)
+            }
+            group.addTask { [weak self] in
+                try await self?.downloadLibraries(manifest: manifest)
+            }
+            group.addTask { [weak self] in
+                try await self?.downloadLoggingConfig(manifest: manifest)
+            }
+            
+            try await group.waitForAll()
+        }
     }
     
     private func downloadClientJar(manifest: MinecraftVersionManifest) async throws {
@@ -195,7 +190,7 @@ class MinecraftFileManager {
             from: manifest.downloads.client.url,
             to: destinationURL,
             sha1: manifest.downloads.client.sha1,
-            fileNameForNotification: NSLocalizedString("file.client.jar", comment: "Client JAR"),
+            fileNameForNotification: NSLocalizedString("file.client.jar", comment: ""),
             type: .core
         )
     }
@@ -205,10 +200,12 @@ class MinecraftFileManager {
         
         try await withThrowingTaskGroup(of: Void.self) { group in
             for library in manifest.libraries {
-                group.addTask {
-                    try await self.downloadLibrary(MinecraftLibrary(from: library))
+                group.addTask { [weak self] in
+                    try await self?.downloadLibrary(MinecraftLibrary(from: library))
                 }
             }
+            
+            try await group.waitForAll()
         }
         
         Logger.shared.info("Finished library downloads.")
@@ -222,7 +219,7 @@ class MinecraftFileManager {
                     from: artifact.url,
                     to: destinationURL,
                     sha1: artifact.sha1,
-                    fileNameForNotification: String(format: NSLocalizedString("file.library", comment: "Library: %@"), library.name),
+                    fileNameForNotification: String(format: NSLocalizedString("file.library", comment: ""), library.name),
                     type: .core
                 )
             }
@@ -238,7 +235,7 @@ class MinecraftFileManager {
                 from: directURL,
                 to: destinationURL,
                 sha1: nil,
-                fileNameForNotification: String(format: NSLocalizedString("file.library", comment: "Library: %@"), library.name),
+                fileNameForNotification: String(format: NSLocalizedString("file.library", comment: ""), library.name),
                 type: .core
             )
         }
@@ -262,32 +259,39 @@ class MinecraftFileManager {
                 from: nativeArtifact.url,
                 to: destinationURL,
                 sha1: nativeArtifact.sha1,
-                fileNameForNotification: String(format: NSLocalizedString("file.native", comment: "Native: %@"), library.name),
+                fileNameForNotification: String(format: NSLocalizedString("file.native", comment: ""), library.name),
                 type: .core
             )
         }
     }
     
+    private func downloadAssets(manifest: MinecraftVersionManifest) async throws {
+        Logger.shared.info("Starting asset downloads for Minecraft version: \(manifest.id)")
+        
+        let assetIndex = try await downloadAssetIndex(manifest: manifest)
+        resourceTotalFiles = assetIndex.objects.count
+        
+        try await downloadAllAssets(assetIndex: assetIndex)
+        
+        Logger.shared.info("Finished downloading assets for Minecraft version: \(manifest.id)")
+    }
+    
     private func downloadAssetIndex(manifest: MinecraftVersionManifest) async throws -> MinecraftAssetIndex {
         let destinationURL = metaDirectory.appendingPathComponent("assets/indexes").appendingPathComponent("\(manifest.assetIndex.id).json")
         
-        // Download asset index if needed
-        if !FileManager.default.fileExists(atPath: destinationURL.path) {
+        if !fileManager.fileExists(atPath: destinationURL.path) {
             try await downloadAndSaveFile(
                 from: manifest.assetIndex.url,
                 to: destinationURL,
                 sha1: manifest.assetIndex.sha1,
-                fileNameForNotification: NSLocalizedString("file.asset.index", comment: "Asset Index"),
+                fileNameForNotification: NSLocalizedString("file.asset.index", comment: ""),
                 type: .core
             )
         }
         
-        // Parse asset index
         let data = try Data(contentsOf: destinationURL)
-        let decoder = JSONDecoder()
-        let assetIndexData = try decoder.decode(AssetIndexData.self, from: data)
+        let assetIndexData = try JSONDecoder().decode(AssetIndexData.self, from: data)
         
-        // Convert to MinecraftAssetIndex
         var totalSize = 0
         var objects: [String: MinecraftAsset] = [:]
         
@@ -319,21 +323,13 @@ class MinecraftFileManager {
             from: loggingFile.url,
             to: destinationURL,
             sha1: loggingFile.sha1,
-            fileNameForNotification: NSLocalizedString("file.logging.config", comment: "Logging Config"),
+            fileNameForNotification: NSLocalizedString("file.logging.config", comment: ""),
             type: .core
         )
     }
     
     private func downloadAndSaveFile(from url: URL, to destinationURL: URL, sha1: String?, fileNameForNotification: String? = nil, type: DownloadType) async throws {
-        let fileManager = FileManager.default
-        
-        // Create parent directory if needed
-        let parentDirectory = destinationURL.deletingLastPathComponent()
-        if !fileManager.fileExists(atPath: parentDirectory.path) {
-            try fileManager.createDirectory(at: parentDirectory, withIntermediateDirectories: true, attributes: nil)
-        }
-        
-        // Check existing file
+        // Check existing file first
         if fileManager.fileExists(atPath: destinationURL.path), let expectedSha1 = sha1 {
             if try await verifyExistingFile(at: destinationURL, expectedSha1: expectedSha1) {
                 incrementCompletedFilesCount(fileName: fileNameForNotification ?? destinationURL.lastPathComponent, type: type)
@@ -341,55 +337,73 @@ class MinecraftFileManager {
             }
         }
         
-        // Download and save file
-        do {
-            let (data, response) = try await URLSession.shared.data(from: url)
-            
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-                throw MinecraftFileManagerError.invalidResponse
-            }
-            
-            guard !data.isEmpty else {
-                throw MinecraftFileManagerError.noData
-            }
-            
-            // Verify SHA1 if provided
-            if let expectedSha1 = sha1 {
-                let downloadedSha1 = data.sha1CommonCrypto()
-                if downloadedSha1 != expectedSha1 {
-                    throw MinecraftFileManagerError.sha1Mismatch(expected: expectedSha1, actual: downloadedSha1)
+        // Create parent directory if needed
+        try fileManager.createDirectory(at: destinationURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        
+        // Download with retry
+        var lastError: Error?
+        for attempt in 0..<Constants.retryCount {
+            do {
+                let (tempFileURL, response) = try await session.download(from: url)
+                defer { try? fileManager.removeItem(at: tempFileURL) }
+                
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    throw MinecraftFileManagerError.invalidResponse
+                }
+                
+                // Verify SHA1 if needed
+                if let expectedSha1 = sha1 {
+                    let downloadedSha1 = try await calculateFileSHA1(at: tempFileURL)
+                    if downloadedSha1 != expectedSha1 {
+                        throw MinecraftFileManagerError.sha1Mismatch(expected: expectedSha1, actual: downloadedSha1)
+                    }
+                }
+                
+                // Move file to final location atomically
+                try fileManager.moveItem(at: tempFileURL, to: destinationURL)
+                
+                incrementCompletedFilesCount(fileName: fileNameForNotification ?? destinationURL.lastPathComponent, type: type)
+                return
+                
+            } catch {
+                lastError = error
+                if attempt < Constants.retryCount - 1 {
+                    try await Task.sleep(nanoseconds: UInt64(Constants.retryDelay * 1_000_000_000))
+                    continue
                 }
             }
-            
-            try data.write(to: destinationURL)
-            Logger.shared.debug("Saved file to: \(destinationURL.path)")
-            
-            incrementCompletedFilesCount(fileName: fileNameForNotification ?? destinationURL.lastPathComponent, type: type)
-            
-        } catch let urlError as URLError {
-            Logger.shared.error("Download failed for \(url.absoluteString): \(urlError.localizedDescription)")
-            throw MinecraftFileManagerError.requestFailed(urlError)
-        } catch {
-            Logger.shared.error("Failed to save file to \(destinationURL.path): \(error.localizedDescription)")
-            throw MinecraftFileManagerError.cannotWriteFile(destinationURL, error)
         }
+        
+        throw lastError ?? MinecraftFileManagerError.requestFailed(URLError(.unknown))
     }
     
     private func verifyExistingFile(at url: URL, expectedSha1: String) async throws -> Bool {
-        do {
-            let fileData = try Data(contentsOf: url)
-            let fileSha1 = fileData.sha1CommonCrypto()
-            if fileSha1 == expectedSha1 {
-                Logger.shared.info("File already exists and SHA1 matches: \(url.lastPathComponent)")
+        let fileSha1 = try await calculateFileSHA1(at: url)
+        return fileSha1 == expectedSha1
+    }
+    
+    private func calculateFileSHA1(at url: URL) async throws -> String {
+        let fileHandle = try FileHandle(forReadingFrom: url)
+        defer { try? fileHandle.close() }
+        
+        var context = CC_SHA1_CTX()
+        CC_SHA1_Init(&context)
+        
+        while autoreleasepool(invoking: {
+            let data = fileHandle.readData(ofLength: Constants.memoryBufferSize)
+            if !data.isEmpty {
+                data.withUnsafeBytes { bytes in
+                    _ = CC_SHA1_Update(&context, bytes.baseAddress, CC_LONG(data.count))
+                }
                 return true
-            } else {
-                Logger.shared.warning("File exists but SHA1 mismatch: \(url.lastPathComponent). Redownloading.")
-                return false
             }
-        } catch {
-            Logger.shared.error("Could not read existing file \(url.path) for SHA1 check: \(error)")
             return false
-        }
+        }) {}
+        
+        var digest = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
+        _ = CC_SHA1_Final(&digest, &context)
+        
+        return digest.map { String(format: "%02hhx", $0) }.joined()
     }
     
     private func incrementCompletedFilesCount(fileName: String, type: DownloadType) {
@@ -408,53 +422,22 @@ class MinecraftFileManager {
         onProgressUpdate?(fileName, currentCount, total, type)
     }
     
-    /// Downloads the content from a URL string.
-    /// - Parameter urlString: The URL string of the file to download.
-    /// - Returns: The downloaded Data.
-    /// - Throws: A DownloadError if the URL is invalid or the download fails.
-    // This method is less likely to be used within this class after merging,
-    // but keeping it for completeness if needed elsewhere.
-    func downloadFile(from urlString: String) async throws -> Data {
-        guard let url = URL(string: urlString) else {
-            throw MinecraftFileManagerError.invalidURL
-        }
-        
-         do {
-            let (data, response) = try await URLSession.shared.data(from: url)
-            
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-                throw MinecraftFileManagerError.invalidResponse
-            }
-            
-            guard !data.isEmpty else {
-                throw MinecraftFileManagerError.noData
-            }
-            
-            return data
-            
-         } catch let urlError as URLError {
-             throw MinecraftFileManagerError.requestFailed(urlError)
-         } catch {
-            throw MinecraftFileManagerError.requestFailed(error) // Generic request failed for download only method
-        }
-    }
-    
     private func downloadAllAssets(assetIndex: MinecraftAssetIndex) async throws {
         let objectsDirectory = metaDirectory.appendingPathComponent("assets/objects")
         let assets = Array(assetIndex.objects)
-        let chunkSize = 20 // Process 20 assets at a time for better concurrency
         
-        // Process assets in chunks to maintain reasonable concurrency
-        for chunk in stride(from: 0, to: assets.count, by: chunkSize) {
-            let end = min(chunk + chunkSize, assets.count)
+        // Process assets in chunks to balance memory usage and performance
+        for chunk in stride(from: 0, to: assets.count, by: Constants.assetChunkSize) {
+            let end = min(chunk + Constants.assetChunkSize, assets.count)
             let currentChunk = assets[chunk..<end]
             
             try await withThrowingTaskGroup(of: Void.self) { group in
                 for (path, asset) in currentChunk {
-                    group.addTask {
-                        try await self.downloadAsset(asset: asset, path: path, objectsDirectory: objectsDirectory)
+                    group.addTask { [weak self] in
+                        try await self?.downloadAsset(asset: asset, path: path, objectsDirectory: objectsDirectory)
                     }
                 }
+                try await group.waitForAll()
             }
         }
     }
@@ -464,10 +447,9 @@ class MinecraftFileManager {
         let assetDirectory = objectsDirectory.appendingPathComponent(hashPrefix)
         let destinationURL = assetDirectory.appendingPathComponent(asset.hash)
         
-        // Skip if file already exists and hash matches
-        if FileManager.default.fileExists(atPath: destinationURL.path) {
+        if fileManager.fileExists(atPath: destinationURL.path) {
             if try await verifyExistingFile(at: destinationURL, expectedSha1: asset.hash) {
-                incrementCompletedFilesCount(fileName: String(format: NSLocalizedString("file.asset", comment: "Asset: %@"), path), type: .resources)
+                incrementCompletedFilesCount(fileName: String(format: NSLocalizedString("file.asset", comment: ""), path), type: .resources)
                 return
             }
         }
@@ -476,34 +458,24 @@ class MinecraftFileManager {
             from: asset.url,
             to: destinationURL,
             sha1: asset.hash,
-            fileNameForNotification: String(format: NSLocalizedString("file.asset", comment: "Asset: %@"), path),
+            fileNameForNotification: String(format: NSLocalizedString("file.asset", comment: ""), path),
             type: .resources
         )
     }
 }
 
-// Helper extension for SHA1 calculation using CommonCrypto
-import CommonCrypto
-
-extension Data {
-    func sha1CommonCrypto() -> String {
-        var digest = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
-        _ = self.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) in
-            CC_SHA1(bytes.baseAddress, CC_LONG(bytes.count), &digest)
-        }
-        let hexBytes = digest.map { String(format: "%02hhx", $0) }
-        return hexBytes.joined()
+// MARK: - Asset Index Data Types
+private struct AssetIndexData: Codable {
+    let objects: [String: AssetObject]
+    
+    struct AssetObject: Codable {
+        let hash: String
+        let size: Int
     }
 }
 
-// Simple thread-safe counter using OSAllocatedUnfairLock
-// Requires importing OSAllocatedUnfairLock from the os library, or implementing a similar lock manually.
-// For simplicity and assuming a modern OS deployment target, we'll use NSLocking for now.
-// Note: NSLocking is an AppKit/UIKit type. A more pure Foundation way would be os_unfair_lock_t or similar low-level primitive.
-// For this example, let's use NSLock as a widely available Foundation class.
-import Foundation // NSLock is in Foundation
-
-class NSLockingCounter {
+// MARK: - Thread-safe Counter
+final class NSLockingCounter {
     private var count = 0
     private let lock = NSLock()
     
@@ -520,14 +492,3 @@ class NSLockingCounter {
         count = 0
     }
 }
-
-// MARK: - Asset Index Data Types
-private struct AssetIndexData: Codable {
-    let objects: [String: AssetObject]
-    
-    struct AssetObject: Codable {
-        let hash: String
-        let size: Int
-    }
-} 
- 

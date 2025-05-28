@@ -10,4 +10,4 @@ struct ModPacksContent: View {
 
 #Preview {
     ModPacksContent()
-} 
+}
