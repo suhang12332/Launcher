@@ -310,14 +310,19 @@ private struct CategorySectionView: View {
     }
     
     private var headerTitle: some View {
-        HStack(spacing: 4) {
-            Text(NSLocalizedString(title, comment: ""))
-                .font(.headline)
+        LabeledContent {
             if !selectedItems.isEmpty {
-                Text("(\(selectedItems.count))")
+                Text("\(selectedItems.count)")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.secondary.opacity(0.1))
+                    .cornerRadius(4)
             }
+        } label: {
+            Text(NSLocalizedString(title, comment: ""))
+                .font(.headline)
         }
     }
     
