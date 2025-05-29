@@ -60,18 +60,20 @@
 "game.form.save.error" = "保存游戏信息失败";
 
 // Download Progress
-"download.core.title" = "核心文件下载";
-"download.resources.title" = "资源文件下载";
+"download.core.title" = "核心文件";
+"download.resources.title" = "资源文件";
+"download.progress" = "进度：%d%%";
 "download.current.file" = "当前文件：%@";
-"download.progress" = "%d%%";
-"download.files" = "%d/%d";
+"download.files" = "文件：%d/%d";
 
 // Notification
 "notification.download.complete.title" = "下载完成";
 "notification.download.complete.body" = "%@ (版本: %@, 加载器: %@) 已成功下载。";
+"notification.download.failed.title" = "下载失败";
+"notification.download.failed.body" = "%@ (版本: %@, 加载器: %@) 下载失败: %@";
 
 // File Names
-"file.client.jar" = "客户端 JAR";
+"file.client.jar" = "客户端文件";
 "file.library" = "库文件：%@";
 "file.native" = "原生库：%@";
 "file.asset.index" = "资源索引";

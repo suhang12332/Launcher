@@ -29,7 +29,6 @@ struct DetailToolbar: View {
         sortMenu
         paginationControls
         Spacer()
-        translateButton
     }
 
     // MARK: - Subviews
@@ -79,14 +78,5 @@ struct DetailToolbar: View {
         }
     }
 
-    private var translateButton: some View {
-        Button(action: {
-            // TODO: Implement translation functionality
-        }) {
-            Label(
-                NSLocalizedString("toolbar.translate", comment: "翻译"),
-                systemImage: "translate"
-            )
-        }
-    }
+    
 }

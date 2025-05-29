@@ -112,6 +112,7 @@ struct ModrinthDetailView: View {
             .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(.white)
     }
     
     private func errorView(_ error: Error) -> some View {

@@ -62,18 +62,20 @@
 // Download Progress
 "download.core.title" = "Core Files";
 "download.resources.title" = "Resource Files";
+"download.progress" = "Progress: %d%%";
 "download.current.file" = "Current File: %@";
-"download.progress" = "%d%%";
-"download.files" = "%d/%d";
+"download.files" = "Files: %d/%d";
 
 // Notification
 "notification.download.complete.title" = "Download Complete";
-"notification.download.complete.body" = "%@ (Version: %@, Loader: %@) successfully downloaded.";
+"notification.download.complete.body" = "%@ (Version: %@, Loader: %@) has been successfully downloaded.";
+"notification.download.failed.title" = "Download Failed";
+"notification.download.failed.body" = "%@ (Version: %@, Loader: %@) download failed: %@";
 
 // File Names
-"file.client.jar" = "Client JAR";
+"file.client.jar" = "Client File";
 "file.library" = "Library: %@";
-"file.native" = "Native: %@";
+"file.native" = "Native Library: %@";
 "file.asset.index" = "Asset Index";
 "file.logging.config" = "Logging Config";
 "file.asset" = "Asset: %@";

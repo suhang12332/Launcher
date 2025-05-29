@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - Constants
-private enum Constants {
+private enum CategoryConstants {
     static let cacheTimeout: TimeInterval = 300
 }
 
@@ -51,7 +51,7 @@ final class CategoryContentViewModel: ObservableObject {
     // MARK: - Private Helpers
     private var shouldFetchData: Bool {
         guard let lastFetch = lastFetchTime else { return true }
-        return Date().timeIntervalSince(lastFetch) >= Constants.cacheTimeout || categories.isEmpty
+        return Date().timeIntervalSince(lastFetch) >= CategoryConstants.cacheTimeout || categories.isEmpty
     }
     
     private func fetchData() async {

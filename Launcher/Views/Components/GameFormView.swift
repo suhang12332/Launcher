@@ -573,7 +573,7 @@ struct GameFormView: View {
             let downloadedManifest = try await fetchMojangManifest(from: mojangVersion.url)
             let fileManager = try await setupFileManager(manifest: downloadedManifest, modLoader: gameInfo.modLoader)
             
-            await startDownloadProcess(fileManager: fileManager, manifest: downloadedManifest)
+            try await startDownloadProcess(fileManager: fileManager, manifest: downloadedManifest)
             
             // Add the game to storage only if download completed without cancellation
             try Task.checkCancellation() // Check cancellation one last time before saving
@@ -622,8 +622,8 @@ struct GameFormView: View {
     }
     
     // Helper method to initiate the download process
-    private func startDownloadProcess(fileManager: MinecraftFileManager, manifest: MinecraftVersionManifest) async {
-         // Start download with combined progress tracking
+    private func startDownloadProcess(fileManager: MinecraftFileManager, manifest: MinecraftVersionManifest) async throws {
+        // Start download with combined progress tracking
         await MainActor.run { // Ensure state updates are on MainActor
             downloadState.startDownload(
                 coreTotalFiles: 1 + manifest.libraries.count + 1, // Client JAR + Libraries + Asset Index
@@ -642,10 +642,8 @@ struct GameFormView: View {
             }
         }
         
-        // Download all files (core files and assets) concurrently
-        // The TaskGroup and URLSession tasks within downloadVersionFiles
-        // should respond to cancellation of the parent Task.
-        // This call is now in the main do block and its errors are caught there.
+        // 执行实际的下载操作
+        try await fileManager.downloadVersionFiles(manifest: manifest)
     }
     
     // Helper method to handle successful download completion

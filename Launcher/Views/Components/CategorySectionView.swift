@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - Constants
-private enum Constants {
+private enum CategorySectionConstants {
     static let maxHeight: CGFloat = 235
     static let verticalPadding: CGFloat = 4
     static let headerBottomPadding: CGFloat = 4
@@ -35,7 +35,7 @@ struct CategorySectionView: View {
             Spacer()
             clearButton
         }
-        .padding(.bottom, Constants.headerBottomPadding)
+        .padding(.bottom, CategorySectionConstants.headerBottomPadding)
     }
     
     private var headerTitle: some View {
@@ -70,15 +70,15 @@ struct CategorySectionView: View {
     private var loadingPlaceholder: some View {
         ScrollView {
             FlowLayout {
-                ForEach(0..<Constants.placeholderCount, id: \.self) { _ in
+                ForEach(0..<CategorySectionConstants.placeholderCount, id: \.self) { _ in
                     FilterChip(title: "Loading...", isSelected: false, action: {})
                         .redacted(reason: .placeholder)
                 }
             }
         }
-        .frame(maxHeight: Constants.maxHeight)
+        .frame(maxHeight: CategorySectionConstants.maxHeight)
         .fixedSize(horizontal: false, vertical: true)
-        .padding(.vertical, Constants.verticalPadding)
+        .padding(.vertical, CategorySectionConstants.verticalPadding)
     }
     
     private var contentView: some View {
@@ -93,9 +93,9 @@ struct CategorySectionView: View {
                 }
             }
         }
-        .frame(maxHeight: Constants.maxHeight)
+        .frame(maxHeight: CategorySectionConstants.maxHeight)
         .fixedSize(horizontal: false, vertical: true)
-        .padding(.vertical, Constants.verticalPadding)
+        .padding(.vertical, CategorySectionConstants.verticalPadding)
     }
     
     // MARK: - Actions

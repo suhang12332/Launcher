@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    
     @EnvironmentObject var gameRepository: GameRepository
 
     @State private var selectedItem: SidebarSelection? = .resource(.mods)
@@ -57,64 +58,15 @@ struct ContentView: View {
                             )
                         } toolbarContent: {
                             // Display project icon and title when loadedProjectDetail is not nil
-                            
                             if let project = loadedProjectDetail {
-                                HStack(spacing: 8) {
-                                    if let iconUrl = project.iconUrl, let url = URL(string: iconUrl) {
-                                        AsyncImage(url: url) { phase in
-                                            switch phase {
-                                            case .empty:
-                                                Color.gray.opacity(0.2)
-                                            case .success(let image):
-                                                image
-                                                    .resizable()
-                                                    .aspectRatio(contentMode: .fill)
-                                            case .failure:
-                                                Color.gray.opacity(0.2)
-                                            @unknown default:
-                                                Color.gray.opacity(0.2)
-                                            }
-                                        }
-                                        .frame(width: 24, height: 24) // Adjust size for toolbar
-                                        .cornerRadius(4)
-                                        .clipped()
-                                    } else {
-                                        Image(systemName: "photo") // Placeholder icon
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fit)
-                                            .frame(width: 24, height: 24)
-                                    }
-                                    Text(project.title)
-                                        .font(.headline) // Adjust font for toolbar
-                                }
+                                ProjectDetailHeaderView(
+                                    project: project,
+                                    selectedTab: $selectedTab
+                                )
                             } else {
-                                // Show a placeholder or loading indicator while loading
-                                Text("Loading...")
+                                ProgressView().controlSize(.small)
+                                Spacer()
                             }
-
-                            Spacer()
-                            Button(action: { selectedProjectId = nil }) {
-                                Label(
-                                    NSLocalizedString("回到主页", comment: "回到主页"),
-                                    systemImage: "house"
-                                )
-                            }
-                            .help(NSLocalizedString("back.home", comment: "回到主页"))
-                            Picker("视图模式", selection: $selectedTab) {
-                                Label("详情", systemImage: "doc.text").tag(0)
-                                Label("下载", systemImage: "arrow.down.square").tag(1)
-                                Label("画廊", systemImage: "photo.on.rectangle").tag(2)
-                            }
-                            .pickerStyle(.segmented)
-                            .background(.clear)
-                            Spacer()
-                            Button(action: { showingAddPlayer = true }) {
-                                Label(
-                                    NSLocalizedString("回到主页", comment: "回到主页"),
-                                    systemImage: "translate"
-                                )
-                            }
-                            .help(NSLocalizedString("back.home", comment: "回到主页"))
                         }
                         .navigationTitle(
                             loadedProjectDetail?.title ?? NSLocalizedString("project.details", comment: "项目详情") // Use project title if available
@@ -156,24 +108,54 @@ struct ContentView: View {
             }
         } detail: {
             if case .resource(let item) = selectedItem {
-                ToolbarContentView(
-                    title: NSLocalizedString(
-                        "sidebar.resources",
-                        comment: "资源管理"
-                    )
-                ) {
-                    ModrinthContentView(
-                        selectedVersion: $selectedVersions,
-                        selectedLicense: $selectedLicenses,
-                        selectedItem: item,
-                        selectedCategories: $selectedCategories,
-                        selectedFeatures: $selectedFeatures,
-                        selectedResolutions: $selectedResolutions,
-                        selectedPerformanceImpact: $selectedPerformanceImpact
-                    )
-                } toolbarContent: {
-                    ContentToolbar(showingAddPlayer: $showingAddPlayer)
-                }.navigationSplitViewColumnWidth(min: 0, ideal: 260, max: 260)
+                if selectedProjectId != nil {
+                    // Display Project Info View when a project is selected
+                    ToolbarContentView(
+                        title: NSLocalizedString(
+                            "project.details", // Using project details title for consistency
+                            comment: "项目详情"
+                        )
+                    ) {
+                        if let projectDetail = loadedProjectDetail {
+                            ProjectInfoView(project: projectDetail)
+                        } else {
+                            // Show a placeholder or loading indicator while loading project details
+                            VStack(spacing: 8) {
+                                ProgressView()
+                                    .controlSize(.regular)
+                                    .frame(width: 20, height: 20)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(.white)
+                            
+                        }
+                    } toolbarContent: {
+                        ContentToolbar(showingAddPlayer: $showingAddPlayer)
+                    }.navigationSplitViewColumnWidth(min: 0, ideal: 260, max: 260)
+                } else {
+                    // Display Modrinth Content View when no project is selected
+                    ToolbarContentView(
+                        title: NSLocalizedString(
+                            "sidebar.resources",
+                            comment: "资源管理"
+                        )
+                    ) {
+                        ModrinthContentView(
+                            selectedVersion: $selectedVersions,
+                            selectedLicense: $selectedLicenses,
+                            selectedItem: item,
+                            selectedCategories: $selectedCategories,
+                            selectedFeatures: $selectedFeatures,
+                            selectedResolutions: $selectedResolutions,
+                            selectedPerformanceImpact: $selectedPerformanceImpact
+                        )
+                    } toolbarContent: {
+                        ContentToolbar(showingAddPlayer: $showingAddPlayer)
+                    }.navigationSplitViewColumnWidth(min: 0, ideal: 260, max: 260)
+                }
+
             } else {
                 Text("Select a resource item or a game for details")
             }
@@ -200,7 +182,11 @@ struct ContentView: View {
              loadedProjectDetail = nil
         }
     }
+    
 }
+
+
+
 
 #Preview {
     ContentView()
