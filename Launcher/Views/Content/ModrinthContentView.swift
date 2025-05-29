@@ -18,6 +18,7 @@ struct ModrinthContentView: View {
     @State private var refreshID = UUID()
 
     var body: some View {
+
         List {
             Section {
                 CategoryContent(
@@ -25,7 +26,7 @@ struct ModrinthContentView: View {
                     selectedCategories: $selectedCategories,
                     selectedFeatures: $selectedFeatures,
                     selectedResolutions: $selectedResolutions,
-                    selectedPerformanceImpact: $selectedPerformanceImpact,
+                    selectedPerformanceImpacts: $selectedPerformanceImpact,
                     selectedVersions: $selectedVersion
                 )
             }
