@@ -34,7 +34,7 @@ enum ModrinthService {
         }
         components.queryItems = queryItems
         guard let url = components.url else { throw URLError(.badURL) }
-        Logger.shared.info(url.absoluteString)
+        Logger.shared.info("Modrinth 搜索 URL：\(url.absoluteString)")
         let (data, _) = try await URLSession.shared.data(from: url)
         return try JSONDecoder().decode(ModrinthResult.self, from: data)
     }
@@ -53,17 +53,25 @@ enum ModrinthService {
         return try JSONDecoder().decode([Category].self, from: data)
     }
 
-    static func fetchLicenses() async throws -> [License] {
-        let (data, _) = try await URLSession.shared.data(
-            from: URLConfig.API.Modrinth.Tag.license
-        )
-        return try JSONDecoder().decode([License].self, from: data)
-    }
+    
 
     static func fetchGameVersions() async throws -> [GameVersion] {
         let (data, _) = try await URLSession.shared.data(
             from: URLConfig.API.Modrinth.Tag.gameVersion
         )
         return try JSONDecoder().decode([GameVersion].self, from: data)
+    }
+
+    static func fetchProjectDetails(id: String) async throws -> ModrinthProjectDetail {
+        let url = URLConfig.API.Modrinth.project(id: id)
+        let (data, _) = try await URLSession.shared.data(from: url)
+        
+        let decoder = JSONDecoder()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
+        dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
+        decoder.dateDecodingStrategy = .formatted(dateFormatter)
+        
+        return try decoder.decode(ModrinthProjectDetail.self, from: data)
     }
 }

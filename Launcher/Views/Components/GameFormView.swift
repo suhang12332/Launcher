@@ -123,16 +123,16 @@ struct GameFormView: View {
             do {
                 let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge])
                 if granted {
-                    Logger.shared.info("Notification permission granted")
+                    Logger.shared.info("通知权限已授予")
                 } else {
-                    Logger.shared.warning("Notification permission denied by user")
+                    Logger.shared.warning("用户拒绝了通知权限")
                 }
                 
                 // Load versions after handling notifications, within the same catch block
                 await loadVersions()
                 
             } catch {
-                Logger.shared.error("Error during initial setup (notifications or loading versions): \(error.localizedDescription)")
+                Logger.shared.error("初始设置过程中出错（通知或加载版本）：\(error.localizedDescription)")
                 // Depending on the severity of the error (e.g., versions failed to load),
                 // you might want to set a state variable here to show a persistent error message to the user.
             }
@@ -491,7 +491,7 @@ struct GameFormView: View {
     private func handleImageDrop(_ providers: [NSItemProvider]) -> Bool {
         guard let provider = providers.first else {
              // Log error for empty provider
-            Logger.shared.error("Image drop failed: No provider.")
+            Logger.shared.error("图片拖放失败：没有提供者")
             return false
         }
 
@@ -513,7 +513,7 @@ struct GameFormView: View {
             return true
         }
          // Log error for unsupported type
-        Logger.shared.warning("Image drop failed: Unsupported type.")
+        Logger.shared.warning("图片拖放失败：不支持的类型")
         return false
     }
 
@@ -562,7 +562,7 @@ struct GameFormView: View {
         guard
             let mojangVersion = mojangVersions.first(where: { $0.id == selectedGameVersion })
         else {
-            Logger.shared.warning("Could not find Mojang version info for selected version: \(selectedGameVersion)")
+            Logger.shared.warning("找不到所选版本的 Mojang 版本信息：\(selectedGameVersion)")
             // This is a non-critical error in terms of app stability, but indicates a data issue.
             handleNonCriticalError(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("error.version.info.missing", comment: "找不到对应版本的下载信息")]), message: NSLocalizedString("error.version.info.fetch", comment: "获取版本信息失败"))
             // Consider if you want to keep the form open or dismiss here
@@ -598,17 +598,17 @@ struct GameFormView: View {
     
     // Helper method to fetch Mojang Manifest
     private func fetchMojangManifest(from url: URL) async throws -> MinecraftVersionManifest {
-        Logger.shared.info("Fetching Mojang version manifest from: \(url.absoluteString)")
+        Logger.shared.info("正在从以下地址获取 Mojang 版本清单：\(url.absoluteString)")
         let (manifestData, _) = try await URLSession.shared.data(from: url)
         let downloadedManifest = try JSONDecoder().decode(MinecraftVersionManifest.self, from: manifestData)
-        Logger.shared.info("Successfully fetched manifest for version: \(downloadedManifest.id)")
+        Logger.shared.info("成功获取版本清单：\(downloadedManifest.id)")
         return downloadedManifest
     }
     
     // Helper method to set up MinecraftFileManager and directories
     private func setupFileManager(manifest: MinecraftVersionManifest, modLoader: String) async throws -> MinecraftFileManager {
         guard let applicationSupportDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
-            Logger.shared.error("Could not find Application Support directory.")
+            Logger.shared.error("无法找到应用程序支持目录")
             throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("error.app.support.missing", comment: "无法找到应用程序支持目录")])
         }
 
@@ -650,7 +650,7 @@ struct GameFormView: View {
     
     // Helper method to handle successful download completion
     private func handleDownloadSuccess() async {
-        Logger.shared.info("Download and save successful.")
+        Logger.shared.info("下载和保存成功")
         await MainActor.run { // Ensure dismiss is on MainActor
         dismiss()
     }
@@ -658,7 +658,7 @@ struct GameFormView: View {
     
     // Helper method to handle download cancellation
     private func handleDownloadCancellation() async {
-        Logger.shared.info("Game download task was cancelled.")
+        Logger.shared.info("游戏下载任务已取消")
         // No notification or alert on cancellation, just reset state and dismiss
         await MainActor.run { // Ensure state updates are on MainActor
             downloadState.reset()
@@ -668,7 +668,7 @@ struct GameFormView: View {
     
     // Helper method to handle download failure (non-cancellation errors)
     private func handleDownloadFailure(gameInfo: GameVersionInfo, error: Error) async {
-        Logger.shared.error("Error saving game or downloading files: \(error)")
+        Logger.shared.error("保存游戏或下载文件时出错：\(error)")
         // Send error notification
         sendNotification(title: NSLocalizedString("notification.download.failed.title", comment: "下载失败"), body: String(format: NSLocalizedString("notification.download.failed.body", comment: "%%@ (版本: %%@, 加载器: %%@) 下载失败: %%@"), gameInfo.gameName, gameInfo.gameVersion, gameInfo.modLoader, error.localizedDescription))
         
@@ -681,7 +681,7 @@ struct GameFormView: View {
     
     // Helper function to send a local notification
     private func sendNotification(title: String, body: String) {
-        Logger.shared.info("d to send notification: \(title) - \(body)") // Log function entry
+        Logger.shared.info("准备发送通知：\(title) - \(body)")
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
@@ -691,9 +691,9 @@ struct GameFormView: View {
         
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
-                Logger.shared.error("Error adding notification request: \(error.localizedDescription)") // Log error adding request
+                Logger.shared.error("添加通知请求时出错：\(error.localizedDescription)")
             } else {
-                Logger.shared.info("Successfully added notification request: \(request.identifier)") // Log success adding request
+                Logger.shared.info("成功添加通知请求：\(request.identifier)")
             }
         }
     }

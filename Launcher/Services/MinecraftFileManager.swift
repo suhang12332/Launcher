@@ -123,7 +123,7 @@ class MinecraftFileManager {
     
     // MARK: - Public Methods
     func downloadVersionFiles(manifest: MinecraftVersionManifest) async throws {
-        Logger.shared.info("Starting download for Minecraft version: \(manifest.id)")
+        Logger.shared.info("开始下载 Minecraft 版本：\(manifest.id)")
         
         try createDirectories(manifestId: manifest.id)
         
@@ -139,7 +139,7 @@ class MinecraftFileManager {
             try await group.waitForAll()
         }
         
-        Logger.shared.info("Finished downloading files for Minecraft version: \(manifest.id)")
+        Logger.shared.info("完成下载 Minecraft 版本文件：\(manifest.id)")
     }
     
     // MARK: - Private Methods
@@ -159,7 +159,7 @@ class MinecraftFileManager {
         for directory in directoriesToCreate {
             if !fileManager.fileExists(atPath: directory.path) {
                 try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
-                Logger.shared.debug("Created directory: \(directory.path)")
+                Logger.shared.debug("创建目录：\(directory.path)")
             }
         }
     }
@@ -196,7 +196,7 @@ class MinecraftFileManager {
     }
     
     private func downloadLibraries(manifest: MinecraftVersionManifest) async throws {
-        Logger.shared.info("Starting library downloads.")
+        Logger.shared.info("开始下载库文件")
         
         try await withThrowingTaskGroup(of: Void.self) { group in
             for library in manifest.libraries {
@@ -208,7 +208,7 @@ class MinecraftFileManager {
             try await group.waitForAll()
         }
         
-        Logger.shared.info("Finished library downloads.")
+        Logger.shared.info("完成下载库文件")
     }
     
     private func downloadLibrary(_ library: MinecraftLibrary) async throws {
@@ -266,14 +266,14 @@ class MinecraftFileManager {
     }
     
     private func downloadAssets(manifest: MinecraftVersionManifest) async throws {
-        Logger.shared.info("Starting asset downloads for Minecraft version: \(manifest.id)")
+        Logger.shared.info("开始下载 Minecraft 版本资源：\(manifest.id)")
         
         let assetIndex = try await downloadAssetIndex(manifest: manifest)
         resourceTotalFiles = assetIndex.objects.count
         
         try await downloadAllAssets(assetIndex: assetIndex)
         
-        Logger.shared.info("Finished downloading assets for Minecraft version: \(manifest.id)")
+        Logger.shared.info("完成下载 Minecraft 版本资源：\(manifest.id)")
     }
     
     private func downloadAssetIndex(manifest: MinecraftVersionManifest) async throws -> MinecraftAssetIndex {

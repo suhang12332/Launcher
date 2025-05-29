@@ -10,12 +10,6 @@ enum URLConfig {
             static let versionList = baseURL.appendingPathComponent(
                 "mc/game/version_manifest.json"
             )
-
-            static func versionDetail(version: String) -> URL {
-                baseURL.appendingPathComponent(
-                    "v1/packages/\(version)/\(version).json"
-                )
-            }
         }
 
         // Modrinth API

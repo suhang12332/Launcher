@@ -24,7 +24,7 @@ struct ToolbarContentView<Content: View, ToolbarContent: View>: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .toolbar {
-            ToolbarItemGroup {
+            ToolbarItemGroup(placement: .primaryAction) {
                 toolbarContent
             }
         }

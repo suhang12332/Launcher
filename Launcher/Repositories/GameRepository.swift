@@ -61,7 +61,7 @@ class GameRepository: ObservableObject {
             )
         } catch {
             Logger.shared.error(
-                "Failed to load games: \(error.localizedDescription)"
+                "加载游戏列表失败：\(error.localizedDescription)"
             )
             games = []
         }
@@ -75,7 +75,7 @@ class GameRepository: ObservableObject {
             UserDefaults.standard.set(encodedData, forKey: gamesKey)
         } catch {
             Logger.shared.error(
-                "Failed to save games: \(error.localizedDescription)"
+                "保存游戏列表失败：\(error.localizedDescription)"
             )
         }
     }

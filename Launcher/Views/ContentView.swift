@@ -19,6 +19,11 @@ struct ContentView: View {
     @State private var selectedFeatures: [String] = []
     @State private var selectedResolutions: [String] = []
     @State private var selectedPerformanceImpact: [String] = []
+    @State private var selectedProjectId: String?
+    @State private var selectedTab = 0
+
+    // State variable to hold the loaded project detail
+    @State private var loadedProjectDetail: ModrinthProjectDetail? = nil
 
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
@@ -36,35 +41,115 @@ struct ContentView: View {
                         NSLocalizedString("game.details", comment: "游戏详情")
                     )
                 case .resource(let item):
-                    ToolbarContentView(
-                        title: NSLocalizedString(
-                            "game.version.title",
-                            comment: "游戏版本"
-                        ),
-                        showDivider: false
-                    ) {
-                        ModrinthDetailView(
-                            query: item.name,
-                            currentPage: $currentPage,
-                            totalItems: $totalItems,
-                            itemsPerPage: $itemsPerPage,
-                            sortIndex: $sortIndex,
-                            selectedVersions: $selectedVersions,
-                            selectedCategories: $selectedCategories,
-                            selectedFeatures: $selectedFeatures,
-                            selectedResolutions: $selectedResolutions,
-                            selectedPerformanceImpact:
-                                $selectedPerformanceImpact
+                    if let projectId = selectedProjectId {
+                        ToolbarContentView(
+                            title: NSLocalizedString(
+                                "game.version.title",
+                                comment: "游戏版本"
+                            ),
+                            showDivider: false
+                        ) {
+                            // Pass the bound loadedProjectDetail to ModrinthProjectDetailView
+                            ModrinthProjectDetailView(
+                                projectId: projectId,
+                                selectedTab: $selectedTab,
+                                projectDetail: $loadedProjectDetail // Pass the binding here
+                            )
+                        } toolbarContent: {
+                            // Display project icon and title when loadedProjectDetail is not nil
+                            
+                            if let project = loadedProjectDetail {
+                                HStack(spacing: 8) {
+                                    if let iconUrl = project.iconUrl, let url = URL(string: iconUrl) {
+                                        AsyncImage(url: url) { phase in
+                                            switch phase {
+                                            case .empty:
+                                                Color.gray.opacity(0.2)
+                                            case .success(let image):
+                                                image
+                                                    .resizable()
+                                                    .aspectRatio(contentMode: .fill)
+                                            case .failure:
+                                                Color.gray.opacity(0.2)
+                                            @unknown default:
+                                                Color.gray.opacity(0.2)
+                                            }
+                                        }
+                                        .frame(width: 24, height: 24) // Adjust size for toolbar
+                                        .cornerRadius(4)
+                                        .clipped()
+                                    } else {
+                                        Image(systemName: "photo") // Placeholder icon
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(width: 24, height: 24)
+                                    }
+                                    Text(project.title)
+                                        .font(.headline) // Adjust font for toolbar
+                                }
+                            } else {
+                                // Show a placeholder or loading indicator while loading
+                                Text("Loading...")
+                            }
+
+                            Spacer()
+                            Button(action: { selectedProjectId = nil }) {
+                                Label(
+                                    NSLocalizedString("回到主页", comment: "回到主页"),
+                                    systemImage: "house"
+                                )
+                            }
+                            .help(NSLocalizedString("back.home", comment: "回到主页"))
+                            Picker("视图模式", selection: $selectedTab) {
+                                Label("详情", systemImage: "doc.text").tag(0)
+                                Label("下载", systemImage: "arrow.down.square").tag(1)
+                                Label("画廊", systemImage: "photo.on.rectangle").tag(2)
+                            }
+                            .pickerStyle(.segmented)
+                            .background(.clear)
+                            Spacer()
+                            Button(action: { showingAddPlayer = true }) {
+                                Label(
+                                    NSLocalizedString("回到主页", comment: "回到主页"),
+                                    systemImage: "translate"
+                                )
+                            }
+                            .help(NSLocalizedString("back.home", comment: "回到主页"))
+                        }
+                        .navigationTitle(
+                            loadedProjectDetail?.title ?? NSLocalizedString("project.details", comment: "项目详情") // Use project title if available
                         )
-                    } toolbarContent: {
-                        DetailToolbar(
-                            totalItems: totalItems,
-                            itemsPerPage: itemsPerPage,
-                            currentPage: $currentPage,
-                            sortIndex: $sortIndex
-                        )
+                    } else {
+                        ToolbarContentView(
+                            title: NSLocalizedString(
+                                "game.version.title",
+                                comment: "游戏版本"
+                            ),
+                            showDivider: false
+                        ) {
+                            ModrinthDetailView(
+                                query: item.name,
+                                currentPage: $currentPage,
+                                totalItems: $totalItems,
+                                itemsPerPage: $itemsPerPage,
+                                sortIndex: $sortIndex,
+                                selectedVersions: $selectedVersions,
+                                selectedCategories: $selectedCategories,
+                                selectedFeatures: $selectedFeatures,
+                                selectedResolutions: $selectedResolutions,
+                                selectedPerformanceImpact: $selectedPerformanceImpact,
+                                selectedProjectId: $selectedProjectId
+                            )
+                        } toolbarContent: {
+                            DetailToolbar(
+                                totalItems: totalItems,
+                                itemsPerPage: itemsPerPage,
+                                currentPage: $currentPage,
+                                sortIndex: $sortIndex
+                            )
+                        }
+                        .navigationTitle(item.localizedName)
                     }
-                    .navigationTitle(item.localizedName)
                 }
             } else {
                 Text("Select an item from the sidebar")
@@ -104,8 +189,15 @@ struct ContentView: View {
                 selectedFeatures = []
                 selectedResolutions = []
                 selectedPerformanceImpact = []
+                selectedProjectId = nil
                 searchQuery = ""
+                // Reset loaded project detail when selected item changes
+                loadedProjectDetail = nil
             }
+        }
+        .onChange(of: selectedProjectId) { _, _ in
+             // Reset loaded project detail when selected project changes
+             loadedProjectDetail = nil
         }
     }
 }

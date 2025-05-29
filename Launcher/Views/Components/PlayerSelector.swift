@@ -120,7 +120,7 @@ private struct PlayerAvatarView: View {
             .task {
                 if !hasLoggedLoad {
                     Logger.shared.debug(
-                        "Trying to load player image: \(player.avatarName)"
+                        "尝试加载玩家头像：\(player.avatarName)"
                     )
                     hasLoggedLoad = true
                 }

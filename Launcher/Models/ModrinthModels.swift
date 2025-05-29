@@ -43,6 +43,102 @@ struct ModrinthProject: Codable {
     }
 }
 
+struct ModrinthProjectDetail: Codable {
+    let slug: String
+    let title: String
+    let description: String
+    let categories: [String]
+    let clientSide: String
+    let serverSide: String
+    let body: String
+    let status: String
+    let requestedStatus: String?
+    let additionalCategories: [String]?
+    let issuesUrl: String?
+    let sourceUrl: String?
+    let wikiUrl: String?
+    let discordUrl: String?
+    let donationUrls: [DonationUrl]?
+    let projectType: String
+    let downloads: Int
+    let iconUrl: String?
+    let color: Int?
+    let threadId: String?
+    let monetizationStatus: String?
+    let id: String
+    let team: String
+    let bodyUrl: String?
+    let moderatorMessage: ModeratorMessage?
+    let published: Date
+    let updated: Date
+    let approved: Date?
+    let queued: Date?
+    let followers: Int
+    let license: License?
+    let versions: [String]
+    let gameVersions: [String]
+    let loaders: [String]
+    let gallery: [GalleryImage]?
+    
+    enum CodingKeys: String, CodingKey {
+        case slug
+        case title
+        case description
+        case categories
+        case clientSide = "client_side"
+        case serverSide = "server_side"
+        case body
+        case status
+        case requestedStatus = "requested_status"
+        case additionalCategories = "additional_categories"
+        case issuesUrl = "issues_url"
+        case sourceUrl = "source_url"
+        case wikiUrl = "wiki_url"
+        case discordUrl = "discord_url"
+        case donationUrls = "donation_urls"
+        case projectType = "project_type"
+        case downloads
+        case iconUrl = "icon_url"
+        case color
+        case threadId = "thread_id"
+        case monetizationStatus = "monetization_status"
+        case id
+        case team
+        case bodyUrl = "body_url"
+        case moderatorMessage = "moderator_message"
+        case published
+        case updated
+        case approved
+        case queued
+        case followers
+        case license
+        case versions
+        case gameVersions = "game_versions"
+        case loaders
+        case gallery
+    }
+}
+
+struct DonationUrl: Codable {
+    let id: String
+    let platform: String
+    let url: String
+}
+
+struct ModeratorMessage: Codable {
+    let message: String
+    let body: String?
+}
+
+struct GalleryImage: Codable {
+    let url: String
+    let featured: Bool
+    let title: String?
+    let description: String?
+    let created: Date
+    let ordering: Int
+}
+
 // Modrinth 版本模型
 struct ModrinthVersion: Codable {
     let id: String
@@ -97,7 +193,7 @@ struct ModrinthResult: Codable {
 }
 
 // 游戏版本
-struct GameVersion: Codable, Identifiable {
+struct GameVersion: Codable, Identifiable,Hashable {
     let version: String
     let version_type: String
     let date: String
@@ -116,9 +212,8 @@ struct Loader: Codable, Identifiable {
 }
 
 // 分类
-struct Category: Codable, Identifiable {
+struct Category: Codable, Identifiable,Hashable {
     let name: String
-    let icon: String
     let project_type: String
     let header: String
 
@@ -126,8 +221,8 @@ struct Category: Codable, Identifiable {
 }
 
 // 许可证
-struct License: Codable, Identifiable {
+struct License: Codable {
+    let id: String
     let name: String
-    let short: String
-    var id: String { name }
+    let url: String?
 }
